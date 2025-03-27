@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>진상력 테스트 - Part 1</title>
+  <style>
+    body { font-family: sans-serif; margin: 30px; line-height: 1.8; }
+    h1 { font-size: 24px; }
+    .question { margin-bottom: 20px; }
+    label { margin-right: 10px; }
+    button { margin-top: 20px; padding: 10px 20px; }
+  </style>
+</head>
+<body>
+  <h1>진상력 테스트 - Part 1</h1>
+  <p>다음 문장에 얼마나 동의하는지 선택해 주세요. (1=전혀 아니다 ~ 6=매우 그렇다)</p>
+
+  <form id="likertForm">
+    <div id="questions"></div>
+    <button type="submit">제출하기</button>
+  </form>
+
+  <div id="result" style="display:none; margin-top: 30px;">
+    <h2>결과</h2>
+    <p id="scoreText"></p>
+    <p><a href="part2.html">👉 파트2로 넘어가기</a></p>
+  </div>
+
+  <script>
+    const items = [
+      "누군가 내 말을 끊으면 무시당했다고 느낀다.",
+      "직원이 실수하면 사과를 받아야 한다고 생각한다.",
+      "온라인 쇼핑에서 문제가 생기면 고객센터 직원에게 항의하는 편이다.",
+      "솔직히 나는 주변 사람들을 잘 신경쓰지 않는 편이다.",
+      "\"비싼 돈을 낼수록, 당연히 내 요구를 들어줘야 한다\"라고 생각하는 편이다.",
+      "누군가 내 의견을 반박하면 나도 모르게 감정적으로 반응하는 편이다.",
+      "단체 활동에서도 내 의견이 반영되지 않으면 흥미를 잃는다.",
+      "나와 가까운 사람이 실수하면 본인이 직접 나서서 바로잡아야 한다고 생각한다.",
+      "사람들이 웃고 있을 때, 혹시 나를 비웃는 건 아닐까 걱정될 때가 있다.",
+      "주변 사람들이 나에게 예민한 것 같다는 말을 할 때가 있다.",
+      "가족이나 친한 사람들의 사적인 결정에도 조언을 많이 하는 편이다.",
+      "누군가 내 말에 반응이 없으면 나를 무시한다고 생각한다.",
+      "다른 사람의 고민을 들으면 해결책을 알려주고 싶어진다.",
+      "상대방이 나를 배려하지 않으면 나도 배려할 필요 없다고 생각한다.",
+      "일상에서 작은 불편함도 크게 스트레스로 느껴지곤 한다."
+    ];
+
+    const questionsDiv = document.getElementById("questions");
+
+    items.forEach((text, idx) => {
+      const qDiv = document.createElement("div");
+      qDiv.className = "question";
+      qDiv.innerHTML = `<strong>${idx + 1}. ${text}</strong><br>` +
+        [1,2,3,4,5,6].map(num =>
+          `<label><input type="radio" name="q${idx}" value="${num}" required> ${num}</label>`
+        ).join('');
+      questionsDiv.appendChild(qDiv);
+    });
+
+    document.getElementById("likertForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      let total = 0;
+
+      for (let i = 0; i < items.length; i++) {
+        const val = document.querySelector(`input[name="q${i}"]:checked`)?.value;
+        if (!val) {
+          alert("모든 문항에 응답해 주세요.");
+          return;
+        }
+        total += parseInt(val);
+      }
+
+      const maxScore = items.length * 6;
+      const percent = Math.round((total / maxScore) * 100);
+
+      document.getElementById("scoreText").innerText =
+        `파트1 총점: ${total}점 / ${maxScore}점 (${percent}점 환산)`;
+      
+      document.getElementById("likertForm").style.display = "none";
+      document.getElementById("result").style.display = "block";
+    });
+  </script>
+</body>
+</html>
