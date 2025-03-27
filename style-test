@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>진상력 테스트 스타일 예시</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; padding: 0;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #f8f9fa;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 500px;
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h1 {
+      font-size: 20px;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .option {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .btn-option {
+      flex: 1 1 25%;
+      text-align: center;
+      padding: 15px 0;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      background: #f1f1f1;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      font-weight: bold;
+    }
+
+    .btn-option.selected {
+      background-color: #007bff;
+      color: white;
+      border-color: #007bff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>1. 누군가 내 말을 끊으면 무시당했다고 느낀다.</h1>
+    <div class="option">
+      <div class="btn-option" onclick="selectOption(1)">1</div>
+      <div class="btn-option" onclick="selectOption(2)">2</div>
+      <div class="btn-option" onclick="selectOption(3)">3</div>
+      <div class="btn-option" onclick="selectOption(4)">4</div>
+      <div class="btn-option" onclick="selectOption(5)">5</div>
+      <div class="btn-option" onclick="selectOption(6)">6</div>
+    </div>
+  </div>
+
+  <script>
+    let selected = null;
+    function selectOption(val) {
+      if (selected !== null) {
+        document.querySelector(`.btn-option:nth-child(${selected})`).classList.remove("selected");
+      }
+      selected = val;
+      document.querySelector(`.btn-option:nth-child(${val})`).classList.add("selected");
+    }
+  </script>
+</body>
+</html>
