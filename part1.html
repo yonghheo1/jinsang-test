@@ -1,38 +1,24 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>진상력 테스트 - Part 1</title>
-  <style>
-    body { font-family: sans-serif; margin: 30px; line-height: 1.8; }
-    h1 { font-size: 24px; }
-    .question { margin-bottom: 20px; }
-    label { margin-right: 10px; }
-    button { margin-top: 20px; padding: 10px 20px; }
-  </style>
 </head>
 <body>
   <h1>진상력 테스트 - Part 1</h1>
-  <p>다음 문장에 얼마나 동의하는지 선택해 주세요. (1=전혀 아니다 ~ 6=매우 그렇다)</p>
+  <p id="questionText">문항을 불러오는 중입니다...</p>
 
-  <form id="likertForm">
-    <div id="questions"></div>
-    <button type="submit">제출하기</button>
-  </form>
+  <div id="options"></div>
 
-  <div id="result" style="display:none; margin-top: 30px;">
-    <h2>결과</h2>
-    <p id="scoreText"></p>
-    <p><a href="part2.html">👉 파트2로 넘어가기</a></p>
-  </div>
+  <button id="nextBtn" onclick="nextQuestion()">다음</button>
 
   <script>
-    const items = [
+    const questions = [
       "누군가 내 말을 끊으면 무시당했다고 느낀다.",
       "직원이 실수하면 사과를 받아야 한다고 생각한다.",
       "온라인 쇼핑에서 문제가 생기면 고객센터 직원에게 항의하는 편이다.",
       "솔직히 나는 주변 사람들을 잘 신경쓰지 않는 편이다.",
-      "\"비싼 돈을 낼수록, 당연히 내 요구를 들어줘야 한다\"라고 생각하는 편이다.",
+      "“비싼 돈을 낼수록, 당연히 내 요구를 들어줘야 한다”라고 생각하는 편이다.",
       "누군가 내 의견을 반박하면 나도 모르게 감정적으로 반응하는 편이다.",
       "단체 활동에서도 내 의견이 반영되지 않으면 흥미를 잃는다.",
       "나와 가까운 사람이 실수하면 본인이 직접 나서서 바로잡아야 한다고 생각한다.",
@@ -45,41 +31,45 @@
       "일상에서 작은 불편함도 크게 스트레스로 느껴지곤 한다."
     ];
 
-    const questionsDiv = document.getElementById("questions");
+    const scores = [];
+    let current = 0;
 
-    items.forEach((text, idx) => {
-      const qDiv = document.createElement("div");
-      qDiv.className = "question";
-      qDiv.innerHTML = `<strong>${idx + 1}. ${text}</strong><br>` +
-        [1,2,3,4,5,6].map(num =>
-          `<label><input type="radio" name="q${idx}" value="${num}" required> ${num}</label>`
-        ).join('');
-      questionsDiv.appendChild(qDiv);
-    });
+    function renderQuestion() {
+      document.getElementById('questionText').innerText = (current + 1) + '. ' + questions[current];
 
-    document.getElementById("likertForm").addEventListener("submit", function(e) {
-      e.preventDefault();
+      const optionsHTML = Array.from({ length: 6 }, (_, i) =>
+        `<label><input type="radio" name="score" value="${i+1}"> ${i+1}</label>`
+      ).join(' ');
 
-      let total = 0;
+      document.getElementById('options').innerHTML = optionsHTML;
+    }
 
-      for (let i = 0; i < items.length; i++) {
-        const val = document.querySelector(`input[name="q${i}"]:checked`)?.value;
-        if (!val) {
-          alert("모든 문항에 응답해 주세요.");
-          return;
-        }
-        total += parseInt(val);
+    function nextQuestion() {
+      const selected = document.querySelector('input[name="score"]:checked');
+      if (!selected) {
+        alert('점수를 선택해 주세요!');
+        return;
       }
 
-      const maxScore = items.length * 6;
-      const percent = Math.round((total / maxScore) * 100);
+      scores.push(Number(selected.value));
+      current++;
 
-      document.getElementById("scoreText").innerText =
-        `파트1 총점: ${total}점 / ${maxScore}점 (${percent}점 환산)`;
-      
-      document.getElementById("likertForm").style.display = "none";
-      document.getElementById("result").style.display = "block";
-    });
+      if (current >= questions.length) {
+        // 마지막 문항 완료
+        const total = scores.reduce((a, b) => a + b, 0);
+        document.body.innerHTML = `
+          <h2>테스트 완료!</h2>
+          <p>총점: ${total}점</p>
+          <p>(다음 단계로 넘어갈 수 있도록 구현 예정)</p>
+        `;
+        return;
+      }
+
+      renderQuestion();
+    }
+
+    // 첫 문항 로딩
+    window.onload = renderQuestion;
   </script>
 </body>
 </html>
