@@ -1,11 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>진상력 테스트</title>
 </head>
 <body>
-  <h1>진상력 테스트</h1>
-  <p>준비 중입니다...</p>
+  <h1>🧪 진상력 테스트</h1>
+  <p>아래 문항에 솔직하게 응답해 주세요.</p>
+
+  <form id="testForm">
+    <div id="questions"></div>
+
+    <button type="submit">제출하기</button>
+  </form>
+
+  <div id="result" style="display: none; margin-top: 30px;">
+    <h2>🧾 결과</h2>
+    <p id="scoreText"></p>
+    <p id="profileText"></p>
+  </div>
+
+  <script>
+    // 다음 단계에서 여기에 질문 넣고, 채점 로직 작성할 거야
+    document.getElementById('questions').innerHTML = '<p>문항 준비 중입니다...</p>';
+  </script>
 </body>
 </html>
