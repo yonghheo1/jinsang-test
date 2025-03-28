@@ -1,249 +1,186 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>진상력 테스트 결과</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>진상력 결과</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-      background-color: #f5f5f5;
+      background-color: #f7f7f7;
       margin: 0;
-      padding: 0;
+      padding: 24px;
     }
     .container {
-      max-width: 700px;
-      margin: 40px auto;
-      padding: 24px;
-      background-color: #fff;
+      max-width: 720px;
+      margin: 0 auto;
+      background-color: white;
       border-radius: 24px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-      text-align: center;
+      padding: 32px;
     }
     .score {
       font-size: 20px;
-      margin-top: 12px;
+      margin-bottom: 12px;
+      text-align: center;
     }
-    .score span {
-      font-size: 28px;
+    .score strong {
+      font-size: 32px;
+      color: #5c7cfa;
+    }
+    .type-summary {
+      margin-top: 32px;
+      padding: 24px;
+      background-color: #f0f4ff;
+      border-radius: 18px;
+    }
+    .type-summary h3 {
+      margin: 0 0 12px;
+    }
+    .type-summary ul {
+      padding-left: 18px;
+    }
+    .type-summary em {
+      color: #5c7cfa;
+      font-style: italic;
+    }
+    .toggle-button {
+      margin-top: 24px;
+      color: #3b5bdb;
       font-weight: bold;
-      color: #4f7eff;
+      cursor: pointer;
     }
-    .score small {
-      font-size: 20px;
-      color: #000;
+    #chartSection {
+      display: none;
+      margin-top: 24px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 30px;
+      margin-top: 16px;
     }
     th, td {
       border: 1px solid #ccc;
       padding: 12px;
-      word-break: keep-all;
+      text-align: center;
     }
     th {
-      background-color: #f0f0f0;
-    }
-    .range-col {
-      width: 80px;
-    }
-    .label-col {
-      white-space: nowrap;
-    }
-    .label-col div {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .dot {
-      display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-    }
-    .green { background-color: #48c774; }
-    .yellow { background-color: #fbc02d; }
-    .orange { background-color: #fb8c00; }
-    .red { background-color: #ef5350; }
-    .meaning-title {
-      text-align: center;
+      background-color: #f1f3f5;
     }
     .meaning-text {
       text-align: left;
     }
+    .dot {
+      height: 12px;
+      width: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 6px;
+    }
+    .green { background-color: #40c057; }
+    .yellow { background-color: #fab005; }
+    .orange { background-color: #fd7e14; }
+    .red { background-color: #fa5252; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>당신의 진상력 결과</h2>
-    <div class="score">
-      진상력 점수: <span>80</span><small> / 100점</small>
-    </div>
+    <h2 style="text-align:center">당신의 진상력 결과</h2>
+    <div class="score">진상력 점수: <strong>80</strong> <span style="color:#333; font-size: 20px">/ 100점</span></div>
+
     <table>
       <thead>
         <tr>
-          <th class="range-col">점수<br>구간</th>
-          <th class="label-col">진상력<br>평가</th>
-          <th class="meaning-title">의미</th>
+          <th>점수<br>구간</th>
+          <th>진상력<br>평가</th>
+          <th>의미</th>
         </tr>
       </thead>
       <tbody>
         <tr>
           <td>1~24점</td>
-          <td class="label-col">
-            <div><span class="dot green"></span>모범<br>시민</div>
-          </td>
+          <td><div><span class="dot green"></span>모범<br>시민</div></td>
           <td class="meaning-text">이 정도면 인격자 수준! 일상 속 배려가 몸에 밴 사람</td>
         </tr>
         <tr>
           <td>25~49점</td>
-          <td class="label-col">
-            <div><span class="dot yellow"></span>잠재<br>진상</div>
-          </td>
+          <td><div><span class="dot yellow"></span>잠재<br>진상</div></td>
           <td class="meaning-text">일상에서 가끔 욱하거나 자기중심 반응이 있을 수 있음</td>
         </tr>
         <tr>
           <td>50~74점</td>
-          <td class="label-col">
-            <div><span class="dot orange"></span>경계<br>진상</div>
-          </td>
+          <td><div><span class="dot orange"></span>경계<br>진상</div></td>
           <td class="meaning-text">꽤 많은 문항에서 진상 반응이 보임. 자각 필요</td>
         </tr>
         <tr>
           <td>75~100점</td>
-          <td class="label-col">
-            <div><span class="dot red"></span>고급<br>진상</div>
-          </td>
+          <td><div><span class="dot red"></span>고급<br>진상</div></td>
           <td class="meaning-text">유형 불문, 어디서든 진상력을 유감없이 발휘 중</td>
         </tr>
       </tbody>
     </table>
-  </div>
 
-  <!-- 👇 결과 상단부 테이블 이후에 이어서 삽입할 HTML -->
+    <div class="type-summary">
+      <h3>🧷 권리과잉형 <span style="font-weight: normal">(Entitlement Type)</span></h3>
+      <p>자신이 ‘정당한 대우’를 받을 자격이 있다고 과도하게 믿으며, 작은 불편이나 실수에도 보상을 요구하거나 강하게 항의함.</p>
+      <ul>
+        <li>“내가 돈을 냈으니 당연히 ○○해야 한다”는 식의 사고</li>
+        <li>실수나 불편에 대해 과잉 대응하며 보상을 요구함</li>
+        <li>SNS 후기나 고객센터 항의를 정당한 ‘권리 행사’로 여김</li>
+        <li>서비스 제공자(직원, 점원 등)를 일방적 하급자로 인식</li>
+      </ul>
+      <p><em>Tip: 때로는 상대방의 사정도 들어보는 유연함이 필요합니다.</em></p>
+    </div>
 
-<div class="section">
-  <h2 class="subtitle">당신은 이런 유형에 가깝습니다</h2>
-  <div class="dominant-type-box">
-    <img src="images/type1.png" alt="권리과잉형 이미지" class="type-image" />
-    <div class="type-info">
-      <h3 class="type-name">✅ 권리과잉형 (Entitlement Type)</h3>
-      <p class="type-description">
-        자신이 ‘정당한 대우’를 받을 자격이 있다고 과도하게 믿으며, 작은 불편이나 실수에도 보상을 요구하거나 강하게 항의함.<br/>
-        - “내가 돈을 냈으니 당연히 ○○해야 한다”는 식의 사고<br/>
-        - 실수나 불편에 대해 과잉 대응하며 보상을 요구함<br/>
-        - SNS 후기나 고객센터 항의를 정당한 ‘권리 행사’로 여김<br/>
-        - 서비스 제공자(직원, 점원 등)를 일방적 하급자로 인식
-      </p>
-      <p class="type-tip"><strong>Tip:</strong> 때로는 상대방의 사정도 들어보는 유연함이 필요합니다.</p>
+    <div class="toggle-button" id="toggleChart">▼ 유형별 점수 보기</div>
+    <div id="chartSection">
+      <canvas id="radarChart" width="300" height="300"></canvas>
     </div>
   </div>
-</div>
 
-<!-- ▼ 유형별 점수 보기 -->
-<div class="section">
-  <button class="toggle-button" onclick="toggleRadar()">
-    ▼ 유형별 점수 보기
-  </button>
-  <div id="radarChartContainer" style="display: none; margin-top: 24px;">
-    <canvas id="radarChart" width="320" height="320"></canvas>
-  </div>
-</div>
+  <script>
+    const typeScores = {
+      "권리과잉형": 85,
+      "과민반응형": 52,
+      "오지랖형": 48,
+      "자기중심형": 66,
+      "피해망상형": 59
+    };
 
-<script>
-  function toggleRadar() {
-    const chart = document.getElementById('radarChartContainer');
-    chart.style.display = (chart.style.display === 'none') ? 'block' : 'none';
-  }
-
-  const ctx = document.getElementById('radarChart').getContext('2d');
-  new Chart(ctx, {
-    type: 'radar',
-    data: {
-      labels: ['권리과잉형', '과민반응형', '오지랖형', '자기중심형', '피해망상형'],
-      datasets: [{
-        label: '유형별 점수 (100점 환산)',
-        data: [85, 60, 40, 70, 55], // 👉 실제 계산된 점수로 교체 필요
-        fill: true,
-        borderColor: '#5c7cfa',
-        backgroundColor: 'rgba(92,124,250,0.2)',
-        pointBackgroundColor: '#5c7cfa',
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        r: {
-          suggestedMin: 0,
-          suggestedMax: 100,
-          ticks: {
-            stepSize: 20,
-            backdropColor: 'transparent'
-          },
-          pointLabels: {
-            font: { size: 14 }
+    function drawRadarChart(scores) {
+      const ctx = document.getElementById("radarChart").getContext("2d");
+      new Chart(ctx, {
+        type: "radar",
+        data: {
+          labels: Object.keys(scores),
+          datasets: [{
+            label: "유형별 점수 (100점 환산)",
+            data: Object.values(scores),
+            backgroundColor: "rgba(91, 128, 255, 0.2)",
+            borderColor: "rgba(91, 128, 255, 1)",
+            pointBackgroundColor: "rgba(91, 128, 255, 1)",
+            borderWidth: 2
+          }]
+        },
+        options: {
+          scales: {
+            r: {
+              suggestedMin: 0,
+              suggestedMax: 100
+            }
           }
         }
-      }
+      });
     }
-  });
-</script>
 
-<style>
-  .section {
-    max-width: 640px;
-    margin: 32px auto;
-    padding: 0 24px;
-  }
-  .subtitle {
-    font-size: 20px;
-    font-weight: bold;
-    margin-bottom: 16px;
-  }
-  .dominant-type-box {
-    display: flex;
-    gap: 16px;
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 16px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    align-items: flex-start;
-  }
-  .type-image {
-    width: 80px;
-    height: 80px;
-    object-fit: contain;
-  }
-  .type-info {
-    flex: 1;
-  }
-  .type-name {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 8px;
-  }
-  .type-description {
-    font-size: 14px;
-    line-height: 1.6;
-    text-align: left;
-    color: #333;
-  }
-  .type-tip {
-    margin-top: 12px;
-    font-style: italic;
-    font-size: 14px;
-    color: #5c7cfa;
-  }
-  .toggle-button {
-    background: none;
-    border: none;
-    font-size: 16px;
-    color: #3b5bdb;
-    cursor: pointer;
-    text-decoration: underline;
-  }
-</style>
+    document.getElementById("toggleChart").addEventListener("click", () => {
+      const section = document.getElementById("chartSection");
+      section.style.display = section.style.display === "none" ? "block" : "none";
+      if (section.style.display === "block") {
+        drawRadarChart(typeScores);
+      }
+    });
+  </script>
 </body>
 </html>
