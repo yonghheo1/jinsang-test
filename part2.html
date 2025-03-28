@@ -1,1 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>진상력 테스트 - Part 2</title>
+  <style>
+    body {
+      font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 640px;
+      margin: 40px auto;
+      padding: 24px;
+      background-color: #fff;
+      border-radius: 24px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      text-align: center;
+    }
+    .emoji {
+      font-size: 42px;
+      animation: bounce 1.2s infinite;
+    }
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-8px);
+      }
+    }
+    .question {
+      font-size: 20px;
+      font-weight: bold;
+      margin: 20px 0 32px;
+    }
+    .option {
+      background-color: #eee;
+      border-radius: 16px;
+      padding: 16px;
+      margin: 12px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .option:hover {
+      background-color: #ddd;
+    }
+    .selected {
+      background-color: #8faaff;
+      color: white;
+    }
+    .next-button {
+      margin-top: 32px;
+      padding: 16px 48px;
+      font-size: 20px;
+      background-color: #5c7cfa;
+      color: white;
+      border: none;
+      border-radius: 18px;
+      cursor: pointer;
+    }
+    .progress {
+      font-size: 16px;
+      color: #555;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="progress" id="progress">1 / 10</div>
+    <div class="emoji">🍜</div>
+    <div class="question" id="question">문항 내용</div>
+    <div class="option" onclick="selectOption(this, 0)"></div>
+    <div class="option" onclick="selectOption(this, 1)"></div>
+    <div class="option" onclick="selectOption(this, 2)"></div>
+    <div class="option" onclick="selectOption(this, 3)"></div>
+    <button class="next-button" onclick="nextQuestion()">다음</button>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        emoji: '🍜',
+        text: '1. 음식점에서 음식이 늦게 나온다. 이때 나는?',
+        options: [
+          '"와, 일부러 내 주문 늦게 처리하는 거 아니야?"',
+          '"제가 먼저 시켰으면 제 것이 당연히 먼저 나와야 하는 거 아니에요?"',
+          '"좀 늦네… 뭐, 기다려야지."',
+          '"이게 말이 돼? 음식점 운영을 이렇게 하면 안 되지."',
+        ]
+      },
+      {
+        emoji: '📚',
+        text: '2. 학부모 상담 중, 교사가 내 아이에 대해 부정적인 평가를 한다. 이때 나는?',
+        options: [
+          '"그건 선생님이 우리 애를 제대로 안 봐서 그래요."',
+          '"제가 보기엔 우리 애가 아니라 반 분위기가 문제 같은데요?"',
+          '"우리 애한테 그렇게 함부로 말해도 되는 거예요?"',
+          '"구체적으로 어떤 부분이 부족한가요?"',
+        ]
+      },
+      {
+        emoji: '🏥',
+        text: '3. 병원에서 진료를 기다리는데 대기 시간이 너무 길다. 이때 나는?',
+        options: [
+          '"병원이 원래 이런 거지 뭐, 기다려야겠네."',
+          '"아, 나만 시간 아까운 사람인가? 뭐 하는 거야 진짜."',
+          '"혹시 일부러 나를 뒤로 미루는 거 아니야?"',
+          '"이렇게 오래 기다리게 하면 안 되는 거 아닌가요?"',
+        ]
+      },
+      {
+        emoji: '📄',
+        text: '4. 공공기관에서 서류를 처리하는데 담당 직원이 느릿느릿 일한다. 이때 나는?',
+        options: [
+          '"여긴 왜 이렇게 비효율적이에요?"',
+          '"일 좀 빨리 해주세요. 저도 바쁜 사람이에요."',
+          '"이렇게 하면 처리 속도가 빨라지지 않을까요?"',
+          '"바쁘시면 일 처리가 좀 느릴 수도 있겠지…"',
+        ]
+      },
+      {
+        emoji: '🛒',
+        text: '5. 대형 마트에서 계산을 하는데 앞 사람이 쿠폰을 한 장씩 확인하며 오래 걸린다. 이때 나는?',
+        options: [
+          '"내가 뭘 그렇게 잘못했나?"',
+          '"조금 걸리겠네. 기다려야지."',
+          '"이런 건 미리 준비해서 와야 하는 거 아닌가요?"',
+          '"아니, 그렇게 하나하나 다 확인하면 뒤 사람들은 어쩌고요?"',
+        ]
+      },
+      {
+        emoji: '🏨',
+        text: '6. 호텔에서 예약한 방이 생각보다 좋지 않다. 이때 나는?',
+        options: [
+          '"여기 너무 별론데, 업그레이드 안 되나요?"',
+          '"제가 왜 이런 불편함을 감수해야 하죠?"',
+          '"여행까지 와서 굳이 기분 망치고 싶지 않아. 참자"',
+          '"이 방이 불편한 이유를 호텔 측에 직접 설명해야겠어."',
+        ]
+      },
+      {
+        emoji: '🚇',
+        text: '7. 지하철에서 누군가가 나와 살짝 부딪혔다. 이때 나는?',
+        options: [
+          '"괜찮습니다만, 다음 번엔 조심 좀 해주세요."',
+          '"앞도 안 보고 다니세요?"',
+          '"아 진짜, 나 오늘 왜 이렇게 재수가 없냐."',
+          '"방금 그 사람, 나한테 일부러 그런 거 같아..."',
+        ]
+      },
+      {
+        emoji: '💬',
+        text: '8. 단체 카톡방에서 친구들이 내 메시지를 무시하는 것 같다. 이때 나는?',
+        options: [
+          '"이거 중요한 얘긴데?"',
+          '"내 말 왜 씹어?"',
+          '"다들 바쁜가 보네."',
+          '"내가 그렇게 우습나?"',
+        ]
+      },
+      {
+        emoji: '☕',
+        text: '9. 카페에서 조용히 공부 중인데, 옆 테이블 사람들이 조금 시끄럽다. 이때 나는?',
+        options: [
+          '"내 돈 쓰고 공부하고 있는데, 이렇게 시끄러우면 곤란하죠."',
+          '"카페가 공부만 하는 곳도 아닌데, 참아야지."',
+          '"조용히 좀 해줄 수 없어요? 전세내신 것도 아니고."',
+          '"제가 왜 여기서 이런 소음을 감수해야 하죠?"',
+        ]
+      },
+      {
+        emoji: '🚕',
+        text: '10. 택시에 탔는데 기사님이 목적지까지 돌아가는 길을 선택한 것 같다. 이때 나는?',
+        options: [
+          '"이래서 내가 택시 타기 싫다니까; 제 시간이 낭비된 거 책임지실 건가요?"',
+          '"이 길 말고 다른 길로 가주실 수 있나요?"',
+          '"일부러 돌아가신 거예요? 이거 신고감인데요."',
+          '"혹시 내가 길 모르는 줄 알고 일부러 돌아간 건가…"',
+        ]
+      },
+    ];
+
+    let current = 0;
+    const selected = [];
+
+    function renderQuestion() {
+      const q = questions[current];
+      document.querySelector(".emoji").textContent = q.emoji;
+      document.querySelector("#question").textContent = q.text;
+      document.querySelectorAll(".option").forEach((el, idx) => {
+        el.textContent = q.options[idx];
+        el.classList.remove("selected");
+      });
+      document.getElementById("progress").textContent = `${current + 1} / ${questions.length}`;
+    }
+
+    function selectOption(el, idx) {
+      selected[current] = idx;
+      document.querySelectorAll(".option").forEach(el => el.classList.remove("selected"));
+      el.classList.add("selected");
+    }
+
+    function nextQuestion() {
+      if (selected[current] == null) {
+        alert("응답 안 하셨습니다! 선택 없이 넘어가면 진상력 만렙입니다 😈");
+        return;
+      }
+      current++;
+      if (current >= questions.length) {
+        // 추후 result.html 연동
+        alert("part2 끝! (나중에 결과 화면으로 이동)");
+      } else {
+        renderQuestion();
+      }
+    }
+
+    renderQuestion();
+  </script>
+</body>
+</html>
 
