@@ -3,155 +3,99 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>진상력 결과</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>진상력 테스트 결과</title>
   <style>
     body {
       font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-      background-color: #f7f7f7;
+      background-color: #f5f5f5;
       margin: 0;
       padding: 0;
     }
     .container {
-      max-width: 700px;
+      max-width: 720px;
       margin: 40px auto;
-      padding: 24px;
+      padding: 32px;
       background-color: #fff;
-      border-radius: 20px;
+      border-radius: 24px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
-    h2 {
+    .title {
       text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 24px;
+    }
+    .score-box {
+      text-align: center;
+      font-size: 22px;
+      font-weight: bold;
       margin-bottom: 16px;
+    }
+    .score-box span {
+      font-size: 32px;
+      color: #5c7cfa;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin: 20px 0;
+      margin-top: 16px;
     }
-    table th, table td {
-      border: 1px solid #ddd;
-      padding: 12px;
-      text-align: center;
+    th, td {
+      border: 1px solid #ccc;
+      padding: 14px;
     }
-    table th {
+    th {
       background-color: #f0f0f0;
-    }
-    .highlight {
-      background-color: #ffe6e6;
-      font-weight: bold;
-    }
-    .type-image {
       text-align: center;
-      margin: 24px 0;
     }
-    .type-summary {
-      background-color: #f9f9f9;
-      border-left: 4px solid #5c7cfa;
-      padding: 16px;
-      margin: 16px 0;
+    td {
+      text-align: left;
+      vertical-align: middle;
     }
-    .toggle-btn {
-      background-color: transparent;
-      border: none;
-      color: #5c7cfa;
-      font-size: 16px;
-      cursor: pointer;
-      margin: 20px 0;
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
-    #radar-container {
-      display: none;
-      margin-top: 20px;
+    .badge span {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
     }
+    .green { background-color: #4caf50; }
+    .yellow { background-color: #ffc107; }
+    .orange { background-color: #ff9800; }
+    .red { background-color: #f44336; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>당신의 진상력 결과</h2>
-    <div id="total-score"></div>
+    <div class="title">당신의 진상력 결과</div>
+    <div class="score-box">총점 <span>80</span> / 100점</div>
 
     <table>
-      <thead>
-        <tr><th>진상력 평가</th><th>의미</th></tr>
-      </thead>
-      <tbody id="spectrum-table">
-        <tr><td>🟢 비진상존</td><td>이 정도면 인격자 수준! 일상 속 배려가 몸에 밴 사람</td></tr>
-        <tr><td>🟡 잠재진상</td><td>일상에서 가끔 욱하거나 자기중심 반응이 있을 수 있음</td></tr>
-        <tr><td>🟠 경계진상</td><td>꽤 많은 문항에서 진상 반응이 보임. 자각 필요</td></tr>
-        <tr><td>🔴 고급진상</td><td>유형 불문, 어디서든 진상력을 유감없이 발휘 중</td></tr>
-      </tbody>
+      <tr>
+        <th>진상력<br>평가</th>
+        <th style="text-align:left">의미</th>
+      </tr>
+      <tr>
+        <td class="badge"><span class="green"></span>평온진상</td>
+        <td>이 정도면 인격자 수준! 일상 속 배려가 몸에 밴 사람</td>
+      </tr>
+      <tr>
+        <td class="badge"><span class="yellow"></span>잠재진상</td>
+        <td>일상에서 가끔 욱하거나 자기중심 반응이 있을 수 있음</td>
+      </tr>
+      <tr>
+        <td class="badge"><span class="orange"></span>경계진상</td>
+        <td>꽤 많은 문항에서 진상 반응이 보임. 자각 필요</td>
+      </tr>
+      <tr>
+        <td class="badge"><span class="red"></span>고급진상</td>
+        <td>유형 불문, 어디서든 진상력을 유감없이 발휘 중</td>
+      </tr>
     </table>
-
-    <div class="type-image">
-      <img id="dominant-type-img" src="" alt="유형 이미지" width="100" />
-    </div>
-    <div class="type-summary" id="dominant-type-desc">
-      <!-- 유형 설명 및 TIP 여기에 삽입 -->
-    </div>
-
-    <button class="toggle-btn" onclick="toggleRadar()">▼ 유형별 점수 보기</button>
-    <div id="radar-container">
-      <canvas id="radarChart" width="400" height="400"></canvas>
-    </div>
   </div>
-
-  <script>
-    // 샘플 데이터 (테스트용으로 수정 가능)
-    const totalScore = 72; // 예시: 72점
-    const maxScore = 90; // 최대 점수 (ex. 30문항 * 3점)
-    const percent = Math.round(totalScore / maxScore * 100);
-    const scoreDiv = document.getElementById("total-score");
-    scoreDiv.innerHTML = `<p><strong>진상력 점수:</strong> ${percent}점</p>`;
-
-    // 스펙트럼 강조 처리
-    const rows = document.querySelectorAll("#spectrum-table tr");
-    if (percent <= 25) rows[0].classList.add("highlight");
-    else if (percent <= 50) rows[1].classList.add("highlight");
-    else if (percent <= 75) rows[2].classList.add("highlight");
-    else rows[3].classList.add("highlight");
-
-    // 지배적 유형 예시 (차후 계산 기반으로 교체)
-    const dominantType = "권리과잉형";
-    const typeDesc = {
-      "권리과잉형": {
-        img: "img/type1.png",
-        text: "당신은 권리과잉형 점수가 상대적으로 높습니다.\n자신의 권리를 지나치게 강조하며, 타인의 입장을 고려하지 못할 수 있어요.\n\n<em>Tip:</em> 때로는 상대의 사정도 들어보는 유연함이 필요합니다."
-      }
-    };
-    document.getElementById("dominant-type-img").src = typeDesc[dominantType].img;
-    document.getElementById("dominant-type-desc").innerHTML = `<p>${typeDesc[dominantType].text}</p>`;
-
-    // 오각형 그래프
-    const radarData = {
-      labels: ["권리과잉형", "과민반응형", "오지랖형", "자기중심형", "피해망상형"],
-      datasets: [{
-        label: "유형별 점수 (100점 환산)",
-        data: [70, 45, 55, 80, 60],
-        backgroundColor: "rgba(92, 124, 250, 0.2)",
-        borderColor: "rgba(92, 124, 250, 1)",
-        pointBackgroundColor: "rgba(92, 124, 250, 1)"
-      }]
-    };
-    const radarConfig = {
-      type: 'radar',
-      data: radarData,
-      options: {
-        responsive: true,
-        scales: {
-          r: {
-            angleLines: { display: true },
-            suggestedMin: 0,
-            suggestedMax: 100
-          }
-        }
-      }
-    };
-    const radarChart = new Chart(document.getElementById("radarChart"), radarConfig);
-
-    function toggleRadar() {
-      const box = document.getElementById("radar-container");
-      box.style.display = box.style.display === "none" ? "block" : "none";
-    }
-  </script>
 </body>
 </html>
