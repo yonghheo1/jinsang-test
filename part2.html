@@ -185,6 +185,8 @@
       },
     ];
 
+    const part1Answers = JSON.parse(localStorage.getItem("part1Answers") || "[]");
+
     let current = 0;
     const selected = [];
 
@@ -205,19 +207,19 @@
       el.classList.add("selected");
     }
 
-    function nextQuestion() {
-      if (selected[current] == null) {
-        alert("응답 안 하셨습니다! 선택 없이 넘어가면 진상력 만렙입니다 😈");
-        return;
-      }
-      current++;
-      if (current >= questions.length) {
-        // 추후 result.html 연동
-        alert("part2 끝! (나중에 결과 화면으로 이동)");
-      } else {
-        renderQuestion();
-      }
-    }
+function nextQuestion() {
+  if (selected[current] == null) {
+    alert("응답 안 하셨습니다! 선택 없이 넘어가면 진상력 만렙입니다 😈");
+    return;
+  }
+  current++;
+  if (current >= questions.length) {
+    localStorage.setItem("part2Answers", JSON.stringify(selected)); // 🔹 2-1
+    window.location.href = "result.html"; // 🔹 2-2
+  } else {
+    renderQuestion();
+  }
+}
 
     renderQuestion();
   </script>
