@@ -1,85 +1,94 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>진상력 테스트 스타일 예시</title>
+  <meta charset="UTF-8" />
+  <title>진상력 테스트</title>
   <style>
-    * { box-sizing: border-box; }
     body {
-      margin: 0; padding: 0;
-      font-family: sans-serif;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 0;
       display: flex;
-      flex-direction: column;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
-      background: #f8f9fa;
+      height: 100vh;
     }
-
     .container {
-      width: 90%;
-      max-width: 500px;
       background: white;
+      border-radius: 15px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
       padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
-
-    h1 {
-      font-size: 20px;
+      max-width: 600px;
+      width: 100%;
       text-align: center;
-      margin-bottom: 30px;
     }
-
-    .option {
+    .question {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    .progress {
+      margin-bottom: 25px;
+      font-size: 0.95rem;
+      color: #555;
+    }
+    .choices {
       display: flex;
+      justify-content: space-between;
       flex-wrap: wrap;
       gap: 10px;
-      justify-content: center;
     }
-
-    .btn-option {
-      flex: 1 1 25%;
-      text-align: center;
-      padding: 15px 0;
-      border: 1px solid #ccc;
-      border-radius: 12px;
-      background: #f1f1f1;
+    .choice {
+      flex: 1;
+      min-width: 45px;
+      padding: 10px;
+      border: none;
+      border-radius: 10px;
+      background-color: #e9ecef;
+      font-size: 1rem;
       cursor: pointer;
-      transition: all 0.2s ease-in-out;
-      font-weight: bold;
+      transition: background-color 0.2s, color 0.2s;
     }
-
-    .btn-option.selected {
-      background-color: #007bff;
+    .choice.selected {
+      background-color: #2f74ff;
       color: white;
-      border-color: #007bff;
+    }
+    .next-button {
+      margin-top: 30px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      background-color: #2f74ff;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>1. 누군가 내 말을 끊으면 무시당했다고 느낀다.</h1>
-    <div class="option">
-      <div class="btn-option" onclick="selectOption(1)">1</div>
-      <div class="btn-option" onclick="selectOption(2)">2</div>
-      <div class="btn-option" onclick="selectOption(3)">3</div>
-      <div class="btn-option" onclick="selectOption(4)">4</div>
-      <div class="btn-option" onclick="selectOption(5)">5</div>
-      <div class="btn-option" onclick="selectOption(6)">6</div>
+    <div class="progress">1 / 15</div>
+    <div class="question">1. 누군가 내 말을 끊으면 무시당했다고 느낀다.</div>
+    <div class="choices">
+      <button class="choice">1</button>
+      <button class="choice">2</button>
+      <button class="choice">3</button>
+      <button class="choice">4</button>
+      <button class="choice">5</button>
+      <button class="choice">6</button>
     </div>
+    <button class="next-button">다음</button>
   </div>
 
   <script>
-    let selected = null;
-    function selectOption(val) {
-      if (selected !== null) {
-        document.querySelector(`.btn-option:nth-child(${selected})`).classList.remove("selected");
-      }
-      selected = val;
-      document.querySelector(`.btn-option:nth-child(${val})`).classList.add("selected");
-    }
+    const choices = document.querySelectorAll('.choice');
+    choices.forEach(btn => {
+      btn.addEventListener('click', () => {
+        choices.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+    });
   </script>
 </body>
 </html>
