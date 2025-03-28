@@ -1,140 +1,163 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>진상력 테스트 - Part 1</title>
-    <style>
-      body {
-        margin: 0;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        background: #f4f5f7;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
-      }
-      .container {
-        background: white;
-        padding: 40px 20px;
-        border-radius: 30px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        max-width: 600px;
-        width: 90%;
-        text-align: center;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>진상력 테스트 - Part 1</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: #f5f6f7;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      background-color: white;
+      padding: 40px;
+      border-radius: 30px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 700px;
+      text-align: center;
+    }
+    .progress {
+      margin-bottom: 20px;
+      font-size: 18px;
+      color: #555;
+    }
+    .question {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 30px;
+    }
+    .scale-labels {
+      display: flex;
+      justify-content: space-between;
+      margin: 0 10px 5px 10px;
+      font-size: 14px;
+      color: #777;
+    }
+    .choices {
+      display: flex;
+      justify-content: center;
+      flex-wrap: nowrap;
+      gap: 10px;
+      margin-bottom: 30px;
+      overflow-x: auto;
+    }
+    .choice-button {
+      background-color: #eee;
+      border: none;
+      border-radius: 20px;
+      padding: 20px;
+      width: 60px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      flex: 0 0 auto;
+    }
+    .choice-button.selected {
+      background-color: #4f80ff;
+      color: white;
+    }
+    .next-button {
+      background-color: #4f80ff;
+      color: white;
+      font-size: 20px;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    @media (max-width: 500px) {
       .question {
-        font-size: 1.2rem;
-        font-weight: bold;
-        margin: 20px 0;
+        font-size: 18px;
       }
-      .progress {
-        font-size: 0.9rem;
-        color: #666;
+      .choice-button {
+        padding: 15px;
+        width: 45px;
+        font-size: 16px;
       }
-      .options {
-        display: flex;
-        justify-content: space-between;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        gap: 10px;
-        margin: 30px 0 10px;
+      .next-button {
+        font-size: 18px;
+        padding: 12px 25px;
       }
-      .option-btn {
-        flex: 1;
-        min-width: 50px;
-        padding: 14px 0;
-        border-radius: 20px;
-        background-color: #eee;
-        font-size: 1.1rem;
-        border: none;
-        cursor: pointer;
-      }
-      .option-btn.selected {
-        background-color: #4f7cf7;
-        color: white;
-      }
-      .anchors {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.9rem;
-        color: #888;
-        padding: 0 10px;
-      }
-      .next-btn {
-        margin-top: 30px;
-        background-color: #4f7cf7;
-        color: white;
-        font-size: 1.1rem;
-        padding: 14px 28px;
-        border: none;
-        border-radius: 18px;
-        cursor: pointer;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="progress" id="progressText">1 / 15</div>
-      <div class="question" id="questionText">질문을 불러오는 중...</div>
-      <div class="anchors">
-        <span>전혀 아니다</span>
-        <span>매우 그렇다</span>
-      </div>
-      <div class="options" id="options"></div>
-      <button class="next-btn" onclick="nextQuestion()">다음</button>
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="progress" id="progressText">1 / 15</div>
+    <div class="question" id="questionText">1. 누군가 내 말을 끊으면 무시당했다고 느낀다.</div>
+    <div class="scale-labels">
+      <span>전혀 아니다</span>
+      <span>매우 그렇다</span>
     </div>
+    <div class="choices" id="choicesContainer"></div>
+    <button class="next-button" onclick="goToNext()">다음</button>
+  </div>
 
-    <script>
-      const questions = [
-        "누군가 내 말을 끊으면 무시당했다고 느낀다.",
-        "직원이 실수하면 사과를 받아야 한다고 생각한다.",
-        "온라인 쇼핑에서 문제가 생기면 고객센터 직원에게 항의하는 편이다.",
-        "솔직히 나는 주변 사람들을 잘 신경쓰지 않는 편이다.",
-        '"비싼 돈을 낼수록, 당연히 내 요구를 들어줘야 한다"라고 생각하는 편이다.',
-        "누군가 내 의견을 반박하면 나도 모르게 감정적으로 반응하는 편이다.",
-        "단체 활동에서도 내 의견이 반영되지 않으면 흥미를 잃는다.",
-        "나와 가까운 사람이 실수하면 본인이 직접 나서서 바로잡아야 한다고 생각한다.",
-        "사람들이 웃고 있을 때, 혹시 나를 비웃는 건 아닐까 걱정될 때가 있다.",
-        "주변 사람들이 나에게 예민한 것 같다는 말을 할 때가 있다.",
-        "가족이나 친한 사람들의 사적인 결정에도 조언을 많이 하는 편이다.",
-        "누군가 내 말에 반응이 없으면 나를 무시한다고 생각한다.",
-        "다른 사람의 고민을 들으면 해결책을 알려주고 싶어진다.",
-        "상대방이 나를 배려하지 않으면 나도 배려할 필요 없다고 생각한다.",
-        "일상에서 작은 불편함도 크게 스트레스로 느껴지곤 한다."
-      ];
+  <script>
+    const questions = [
+      "누군가 내 말을 끊으면 무시당했다고 느낀다.",
+      "직원이 실수하면 사과를 받아야 한다고 생각한다.",
+      "온라인 쇼핑에서 문제가 생기면 고객센터 직원에게 항의하는 편이다.",
+      "솔직히 나는 주변 사람들을 잘 신경쓰지 않는 편이다.",
+      "\"비싼 돈을 낼수록, 당연히 내 요구를 들어줘야 한다\"라고 생각하는 편이다.",
+      "누군가 내 의견을 반박하면 나도 모르게 감정적으로 반응하는 편이다.",
+      "단체 활동에서도 내 의견이 반영되지 않으면 흥미를 잃는다.",
+      "나와 가까운 사람이 실수하면 본인이 직접 나서서 바로잡아야 한다고 생각한다.",
+      "사람들이 웃고 있을 때, 혹시 나를 비웃는 건 아닐까 걱정될 때가 있다.",
+      "주변 사람들이 나에게 예민한 것 같다는 말을 할 때가 있다.",
+      "가족이나 친한 사람들의 사적인 결정에도 조언을 많이 하는 편이다.",
+      "누군가 내 말에 반응이 없으면 나를 무시한다고 생각한다.",
+      "다른 사람의 고민을 들으면 해결책을 알려주고 싶어진다.",
+      "상대방이 나를 배려하지 않으면 나도 배려할 필요 없다고 생각한다.",
+      "일상에서 작은 불편함도 크게 스트레스로 느껴지곤 한다."
+    ];
 
-      let currentIndex = 0;
+    let currentQuestion = 0;
+    let answers = Array(questions.length).fill(null);
 
-      function renderQuestion() {
-        document.getElementById("questionText").innerText = `${currentIndex + 1}. ${questions[currentIndex]}`;
-        document.getElementById("progressText").innerText = `${currentIndex + 1} / ${questions.length}`;
+    const questionText = document.getElementById('questionText');
+    const choicesContainer = document.getElementById('choicesContainer');
+    const progressText = document.getElementById('progressText');
 
-        const optionsContainer = document.getElementById("options");
-        optionsContainer.innerHTML = "";
-
-        for (let i = 1; i <= 6; i++) {
-          const btn = document.createElement("button");
-          btn.innerText = i;
-          btn.className = "option-btn";
-          btn.onclick = () => {
-            document.querySelectorAll(".option-btn").forEach((b) => b.classList.remove("selected"));
-            btn.classList.add("selected");
-          };
-          optionsContainer.appendChild(btn);
-        }
-      }
-
-      function nextQuestion() {
-        if (currentIndex < questions.length - 1) {
-          currentIndex++;
+    function renderQuestion() {
+      questionText.textContent = `${currentQuestion + 1}. ${questions[currentQuestion]}`;
+      progressText.textContent = `${currentQuestion + 1} / ${questions.length}`;
+      choicesContainer.innerHTML = '';
+      for (let i = 1; i <= 6; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.className = 'choice-button';
+        if (answers[currentQuestion] === i) btn.classList.add('selected');
+        btn.onclick = () => {
+          answers[currentQuestion] = i;
           renderQuestion();
-        } else {
-          alert("파트1 테스트가 완료되었습니다.");
-        }
+        };
+        choicesContainer.appendChild(btn);
       }
+    }
 
-      renderQuestion();
-    </script>
-  </body>
+    function goToNext() {
+      if (answers[currentQuestion] === null) {
+        alert("응답 없이 도망치려 하셨군요! 🙈 문항에 답해주세요!");
+        return;
+      }
+      if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        renderQuestion();
+      } else {
+        alert("테스트가 완료되었습니다! (결과 페이지는 추후 구현)");
+      }
+    }
+
+    renderQuestion();
+  </script>
+</body>
 </html>
