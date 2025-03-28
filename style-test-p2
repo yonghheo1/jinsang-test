@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>진상력 테스트 - 스타일 실험</title>
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f6f6f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      width: 90%;
+      text-align: center;
+      position: relative;
+    }
+
+    .question {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 30px;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .option {
+      background-color: #f1f1f1;
+      padding: 15px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      border: 2px solid transparent;
+      font-size: 16px;
+      text-align: left;
+    }
+
+    .option:hover {
+      background-color: #e0f2ff;
+      transform: scale(1.02);
+    }
+
+    .option.selected {
+      border: 2px solid #4a90e2;
+      background-color: #d3eaff;
+    }
+
+    .next-btn {
+      margin-top: 30px;
+      padding: 14px 32px;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+    }
+
+    .next-btn:hover {
+      background-color: #3b7dc0;
+    }
+
+    .cartoon {
+      width: 100px;
+      height: 100px;
+      margin: 0 auto 20px;
+      animation: pop-in 0.4s ease-out;
+    }
+
+    @keyframes pop-in {
+      from {
+        transform: scale(0.7);
+        opacity: 0;
+      }
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="cartoon">🍜</div>
+    <div class="question">1. 음식점에서 음식이 늦게 나온다. 이때 나는?</div>
+    <div class="options">
+      <div class="option">A) "와, 일부러 내 주문 늦게 처리하는 거 아니야?"</div>
+      <div class="option">B) "제가 먼저 시켰으면 제 것이 당연히 먼저 나와야 하는 거 아니에요?"</div>
+      <div class="option">C) "좀 늦네… 뭐, 기다려야지."</div>
+      <div class="option">D) "이게 말이 돼? 음식점 운영을 이렇게 하면 안 되지."</div>
+    </div>
+    <button class="next-btn">다음</button>
+  </div>
+
+  <script>
+    const options = document.querySelectorAll('.option');
+    options.forEach(option => {
+      option.addEventListener('click', () => {
+        options.forEach(o => o.classList.remove('selected'));
+        option.classList.add('selected');
+      });
+    });
+  </script>
+</body>
+</html>
