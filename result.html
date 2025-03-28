@@ -1,62 +1,59 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>진상력 결과</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>당신의 진상력 결과</title>
   <style>
     body {
       font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
-      background-color: #f5f5f5;
       margin: 0;
       padding: 0;
+      background: #f9f9f9;
+      color: #111;
     }
     .container {
-      max-width: 720px;
+      max-width: 640px;
       margin: 40px auto;
-      padding: 24px;
-      background-color: #fff;
-      border-radius: 24px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      padding: 20px;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
-    .title {
+    h1 {
       text-align: center;
-      font-size: 28px;
-      font-weight: bold;
-      margin-bottom: 16px;
+      font-size: 26px;
+      margin-bottom: 12px;
     }
     .score {
       text-align: center;
-      font-size: 22px;
-      font-weight: bold;
-      margin: 16px 0;
+      font-size: 20px;
+      margin-bottom: 32px;
     }
     .score span {
-      font-size: 28px;
-      color: #5c7cfa;
+      color: #4a6df0;
+      font-weight: bold;
+      font-size: 22px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 24px;
+      margin-top: 10px;
     }
     th, td {
-      border: 1px solid #ddd;
+      border: 1px solid #ccc;
       padding: 16px;
-      font-size: 16px;
+      text-align: center;
       vertical-align: middle;
     }
     th {
       background-color: #f0f0f0;
     }
-    td.meaning {
-      text-align: center;
-    }
-    .tag {
+    .label {
       display: flex;
+      justify-content: center;
       align-items: center;
       gap: 6px;
-      justify-content: center;
     }
     .dot {
       width: 14px;
@@ -64,16 +61,16 @@
       border-radius: 50%;
       display: inline-block;
     }
-    .green { background-color: #69db7c; }
-    .yellow { background-color: #fcc419; }
-    .orange { background-color: #ff922b; }
-    .red { background-color: #ff6b6b; }
+    .green { background-color: #5bd27f; }
+    .yellow { background-color: #f4c542; }
+    .orange { background-color: #f88f3f; }
+    .red { background-color: #ef5f5f; }
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="title">당신의 진상력 결과</div>
-    <div class="score">진상력 점수: <span>80 / 120점</span></div>
+    <h1>당신의 진상력 결과</h1>
+    <div class="score">진상력 점수: <span>80 / 100점</span></div>
 
     <table>
       <thead>
@@ -85,24 +82,24 @@
       </thead>
       <tbody>
         <tr>
-          <td style="text-align: center;">15~39</td>
-          <td class="tag"><span class="dot green"></span>모범시민</td>
-          <td class="meaning">이 정도면 인격자 수준! 일상 속 배려가 몸에 밴 사람</td>
+          <td>1~24</td>
+          <td class="label"><span class="dot green"></span>모범 시민</td>
+          <td>이 정도면 인격자 수준! 일상 속 배려가 몸에 밴 사람</td>
         </tr>
         <tr>
-          <td style="text-align: center;">40~64</td>
-          <td class="tag"><span class="dot yellow"></span>잠재진상</td>
-          <td class="meaning">일상에서 가끔 욱하거나 자기중심 반응이 있을 수 있음</td>
+          <td>25~49</td>
+          <td class="label"><span class="dot yellow"></span>잠재 진상</td>
+          <td>일상에서 가끔 욱하거나 자기중심 반응이 있을 수 있음</td>
         </tr>
         <tr>
-          <td style="text-align: center;">65~89</td>
-          <td class="tag"><span class="dot orange"></span>경계진상</td>
-          <td class="meaning">꽤 많은 문항에서 진상 반응이 보임. 자각 필요</td>
+          <td>50~74</td>
+          <td class="label"><span class="dot orange"></span>경계 진상</td>
+          <td>꽤 많은 문항에서 진상 반응이 보임. 자각 필요</td>
         </tr>
         <tr>
-          <td style="text-align: center;">90~120</td>
-          <td class="tag"><span class="dot red"></span>고급진상</td>
-          <td class="meaning">유형 불문, 어디서든 진상력을 유감없이 발휘 중</td>
+          <td>75~100</td>
+          <td class="label"><span class="dot red"></span>고급 진상</td>
+          <td>유형 불문, 어디서든 진상력을 유감없이 발휘 중</td>
         </tr>
       </tbody>
     </table>
