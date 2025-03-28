@@ -1,107 +1,156 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>진상력 결과</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f6f7f9;
+      font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      background-color: #f7f7f7;
       margin: 0;
       padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
     }
-
-    .result-container {
-      background: white;
-      padding: 40px;
-      border-radius: 24px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      max-width: 600px;
-      width: 90%;
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 24px;
+      background-color: #fff;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+    table th, table td {
+      border: 1px solid #ddd;
+      padding: 12px;
       text-align: center;
     }
-
-    h1 {
-      font-size: 26px;
-      margin-bottom: 20px;
-      color: #333;
+    table th {
+      background-color: #f0f0f0;
     }
-
-    .score-section {
-      margin-top: 30px;
+    .highlight {
+      background-color: #ffe6e6;
+      font-weight: bold;
     }
-
-    .score-box {
-      background: #f0f2f5;
-      border-radius: 16px;
+    .type-image {
+      text-align: center;
+      margin: 24px 0;
+    }
+    .type-summary {
+      background-color: #f9f9f9;
+      border-left: 4px solid #5c7cfa;
       padding: 16px;
-      margin-bottom: 12px;
-      font-size: 18px;
-      color: #444;
+      margin: 16px 0;
+    }
+    .toggle-btn {
+      background-color: transparent;
+      border: none;
+      color: #5c7cfa;
+      font-size: 16px;
+      cursor: pointer;
+      margin: 20px 0;
+    }
+    #radar-container {
+      display: none;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="result-container">
-    <h1>진상력 테스트 결과</h1>
-    <div id="resultText">채점 중입니다...</div>
-    <div class="score-section" id="typeScores"></div>
+  <div class="container">
+    <h2>당신의 진상력 결과</h2>
+    <div id="total-score"></div>
+
+    <table>
+      <thead>
+        <tr><th>진상력 평가</th><th>의미</th></tr>
+      </thead>
+      <tbody id="spectrum-table">
+        <tr><td>🟢 비진상존</td><td>이 정도면 인격자 수준! 일상 속 배려가 몸에 밴 사람</td></tr>
+        <tr><td>🟡 잠재진상</td><td>일상에서 가끔 욱하거나 자기중심 반응이 있을 수 있음</td></tr>
+        <tr><td>🟠 경계진상</td><td>꽤 많은 문항에서 진상 반응이 보임. 자각 필요</td></tr>
+        <tr><td>🔴 고급진상</td><td>유형 불문, 어디서든 진상력을 유감없이 발휘 중</td></tr>
+      </tbody>
+    </table>
+
+    <div class="type-image">
+      <img id="dominant-type-img" src="" alt="유형 이미지" width="100" />
+    </div>
+    <div class="type-summary" id="dominant-type-desc">
+      <!-- 유형 설명 및 TIP 여기에 삽입 -->
+    </div>
+
+    <button class="toggle-btn" onclick="toggleRadar()">▼ 유형별 점수 보기</button>
+    <div id="radar-container">
+      <canvas id="radarChart" width="400" height="400"></canvas>
+    </div>
   </div>
 
   <script>
-    // 문항 번호 → 유형 매핑
-    const typeMap = {
-      "권리과잉형": [2, 3, 5],
-      "과민반응형": [6, 10, 15],
-      "오지랖형": [8, 11, 13],
-      "자기중심형": [4, 7, 14],
-      "피해망상형": [1, 9, 12]
+    // 샘플 데이터 (테스트용으로 수정 가능)
+    const totalScore = 72; // 예시: 72점
+    const maxScore = 90; // 최대 점수 (ex. 30문항 * 3점)
+    const percent = Math.round(totalScore / maxScore * 100);
+    const scoreDiv = document.getElementById("total-score");
+    scoreDiv.innerHTML = `<p><strong>진상력 점수:</strong> ${percent}점</p>`;
+
+    // 스펙트럼 강조 처리
+    const rows = document.querySelectorAll("#spectrum-table tr");
+    if (percent <= 25) rows[0].classList.add("highlight");
+    else if (percent <= 50) rows[1].classList.add("highlight");
+    else if (percent <= 75) rows[2].classList.add("highlight");
+    else rows[3].classList.add("highlight");
+
+    // 지배적 유형 예시 (차후 계산 기반으로 교체)
+    const dominantType = "권리과잉형";
+    const typeDesc = {
+      "권리과잉형": {
+        img: "img/type1.png",
+        text: "당신은 권리과잉형 점수가 상대적으로 높습니다.\n자신의 권리를 지나치게 강조하며, 타인의 입장을 고려하지 못할 수 있어요.\n\n<em>Tip:</em> 때로는 상대의 사정도 들어보는 유연함이 필요합니다."
+      }
     };
+    document.getElementById("dominant-type-img").src = typeDesc[dominantType].img;
+    document.getElementById("dominant-type-desc").innerHTML = `<p>${typeDesc[dominantType].text}</p>`;
 
-    // 로컬스토리지에서 answers 가져오기
-    const answers = JSON.parse(localStorage.getItem("answers")) || [];
+    // 오각형 그래프
+    const radarData = {
+      labels: ["권리과잉형", "과민반응형", "오지랖형", "자기중심형", "피해망상형"],
+      datasets: [{
+        label: "유형별 점수 (100점 환산)",
+        data: [70, 45, 55, 80, 60],
+        backgroundColor: "rgba(92, 124, 250, 0.2)",
+        borderColor: "rgba(92, 124, 250, 1)",
+        pointBackgroundColor: "rgba(92, 124, 250, 1)"
+      }]
+    };
+    const radarConfig = {
+      type: 'radar',
+      data: radarData,
+      options: {
+        responsive: true,
+        scales: {
+          r: {
+            angleLines: { display: true },
+            suggestedMin: 0,
+            suggestedMax: 100
+          }
+        }
+      }
+    };
+    const radarChart = new Chart(document.getElementById("radarChart"), radarConfig);
 
-    const maxPerItem = 6;
-    const maxTotal = maxPerItem * 3; // 유형당 문항 수: 3
-
-    const scores = {};
-    let totalScore = 0;
-
-    for (const type in typeMap) {
-      const qNums = typeMap[type];
-      const sum = qNums.reduce((acc, qIdx) => acc + (answers[qIdx - 1] || 0), 0);
-      scores[type] = Math.round((sum / maxTotal) * 100); // 100점 환산
-      totalScore += sum;
-    }
-
-    // 진상력 총점 스펙트럼 계산
-    const maxOverall = maxTotal * 5;
-    const totalPercent = Math.round((totalScore / maxOverall) * 100);
-
-    let spectrum = "";
-    if (totalPercent <= 20) spectrum = "💡 일반인";
-    else if (totalPercent <= 40) spectrum = "😐 가벼운 진상";
-    else if (totalPercent <= 60) spectrum = "⚠️ 잠재 진상";
-    else if (totalPercent <= 80) spectrum = "🔥 실전 진상";
-    else spectrum = "👑 진상 만렙";
-
-    // 결과 출력
-    document.getElementById("resultText").innerHTML = `
-      <p><strong>총 진상력 점수:</strong> ${totalScore}점 / ${maxOverall}점</p>
-      <p><strong>스펙트럼 구간:</strong> ${spectrum}</p>
-    `;
-
-    const scoresBox = document.getElementById("typeScores");
-    for (const type in scores) {
-      const div = document.createElement("div");
-      div.className = "score-box";
-      div.innerText = `${type} 점수: ${scores[type]}점`;
-      scoresBox.appendChild(div);
+    function toggleRadar() {
+      const box = document.getElementById("radar-container");
+      box.style.display = box.style.display === "none" ? "block" : "none";
     }
   </script>
 </body>
