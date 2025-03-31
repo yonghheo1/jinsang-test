@@ -147,8 +147,7 @@
       ["피해망상형", "권리과잉형", null, "피해망상형"]
     ];
 
-    const params = new URLSearchParams(window.location.search);
-    const answers = [...Array(25)].map((_, i) => parseInt(params.get(`p${i+1}`), 10));
+      const answers = JSON.parse(localStorage.getItem("allAnswers") || "[]");
 
       if (answers.length !== 25 || answers.some(a => isNaN(a))) {
     alert("응답이 누락되었거나 잘못된 값이 감지되었습니다. 테스트를 다시 시작해주세요.");
