@@ -215,15 +215,19 @@ function nextQuestion() {
     alert("응답 안 하셨습니다! 선택 없이 넘어가면 진상력 만렙입니다 😈");
     return;
   }
+
   current++;
+
   if (current >= questions.length) {
-    // part1 + part2 응답을 URL 쿼리로 변환하여 result.html로 이동
     const allAnswers = part1Answers.concat(selected.map(i => i + 1));
-    const query = allAnswers.map((a, i) => `p${i + 1}=${a}`).join("&");
-    window.location.href = `result.html?${query}`;
+
+    // ✅ 주소에 안 담고, 로컬스토리지에 저장
+    localStorage.setItem("allAnswers", JSON.stringify(allAnswers));
+
+    // ✅ 깔끔하게 주소 이동
+    window.location.href = "result.html";
   } else {
     renderQuestion();
-    
   }
 }
 
