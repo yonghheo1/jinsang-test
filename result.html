@@ -87,7 +87,7 @@
 <body>
   <div class="container">
     <h2 style="text-align:center">당신의 진상력 결과</h2>
-    <div class="score">진상력 점수: <strong>80</strong> <span style="color:#333; font-size: 20px">/ 100점</span></div>
+    <div class="score" id="totalScore"></div>
 
     <table>
       <thead>
@@ -98,40 +98,14 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>1~24점</td>
-          <td><div><span class="dot green"></span>모범<br>시민</div></td>
-          <td class="meaning-text">이 정도면 인격자 수준! 일상 속 배려가 몸에 밴 사람</td>
-        </tr>
-        <tr>
-          <td>25~49점</td>
-          <td><div><span class="dot yellow"></span>잠재<br>진상</div></td>
-          <td class="meaning-text">일상에서 가끔 욱하거나 자기중심 반응이 있을 수 있음</td>
-        </tr>
-        <tr>
-          <td>50~74점</td>
-          <td><div><span class="dot orange"></span>경계<br>진상</div></td>
-          <td class="meaning-text">꽤 많은 문항에서 진상 반응이 보임. 자각 필요</td>
-        </tr>
-        <tr>
-          <td>75~100점</td>
-          <td><div><span class="dot red"></span>고급<br>진상</div></td>
-          <td class="meaning-text">유형 불문, 어디서든 진상력을 유감없이 발휘 중</td>
-        </tr>
+        <tr><td>1~24점</td><td><div><span class="dot green"></span>모범<br>시민</div></td><td class="meaning-text">이 정도면 인격자 수준! 일상 속 배려가 몸에 밴 사람</td></tr>
+        <tr><td>25~49점</td><td><div><span class="dot yellow"></span>잠재<br>진상</div></td><td class="meaning-text">일상에서 가끔 욱하거나 자기중심 반응이 있을 수 있음</td></tr>
+        <tr><td>50~74점</td><td><div><span class="dot orange"></span>경계<br>진상</div></td><td class="meaning-text">꽤 많은 문항에서 진상 반응이 보임. 자각 필요</td></tr>
+        <tr><td>75~100점</td><td><div><span class="dot red"></span>고급<br>진상</div></td><td class="meaning-text">유형 불문, 어디서든 진상력을 유감없이 발휘 중</td></tr>
       </tbody>
     </table>
 
-    <div class="type-summary">
-      <h3>🧷 권리과잉형 <span style="font-weight: normal">(Entitlement Type)</span></h3>
-      <p>자신이 ‘정당한 대우’를 받을 자격이 있다고 과도하게 믿으며, 작은 불편이나 실수에도 보상을 요구하거나 강하게 항의함.</p>
-      <ul>
-        <li>“내가 돈을 냈으니 당연히 ○○해야 한다”는 식의 사고</li>
-        <li>실수나 불편에 대해 과잉 대응하며 보상을 요구함</li>
-        <li>SNS 후기나 고객센터 항의를 정당한 ‘권리 행사’로 여김</li>
-        <li>서비스 제공자(직원, 점원 등)를 일방적 하급자로 인식</li>
-      </ul>
-      <p><em>Tip: 때로는 상대방의 사정도 들어보는 유연함이 필요합니다.</em></p>
-    </div>
+    <div id="dominantTypeSection" class="type-summary"></div>
 
     <div class="toggle-button" id="toggleChart">▼ 유형별 점수 보기</div>
     <div id="chartSection">
@@ -140,13 +114,108 @@
   </div>
 
   <script>
-    const typeScores = {
-      "권리과잉형": 85,
-      "과민반응형": 52,
-      "오지랖형": 48,
-      "자기중심형": 66,
-      "피해망상형": 59
+    const part1Answers = JSON.parse(localStorage.getItem("part1Answers") || "[]");
+    const part2Answers = JSON.parse(localStorage.getItem("part2Answers") || "[]");
+
+    const part1Map = {
+      "과민반응형": [5, 9, 14],
+      "권리과잉형": [1, 2, 4],
+      "오지랖형": [7, 10, 12],
+      "자기중심형": [3, 6, 13],
+      "피해망상형": [0, 8, 11]
     };
+
+    const part2Map = [
+      ["피해망상형", "자기중심형", null, "오지랖형"],
+      ["권리과잉형", "오지랖형", "과민반응형", null],
+      [null, "자기중심형", "피해망상형", "권리과잉형"],
+      ["과민반응형", "권리과잉형", "오지랖형", null],
+      ["피해망상형", null, "오지랖형", "과민반응형"],
+      ["권리과잉형", "자기중심형", null, "오지랖형"],
+      [null, "과민반응형", "자기중심형", "피해망상형"],
+      ["오지랖형", "과민반응형", null, "피해망상형"],
+      ["권리과잉형", null, "과민반응형", "자기중심형"],
+      ["자기중심형", null, "권리과잉형", "피해망상형"]
+    ];
+
+    const scores = {
+      "권리과잉형": 0,
+      "과민반응형": 0,
+      "오지랖형": 0,
+      "자기중심형": 0,
+      "피해망상형": 0
+    };
+
+    for (let type in part1Map) {
+      part1Map[type].forEach(idx => {
+        scores[type] += part1Answers[idx] || 0;
+      });
+    }
+
+    part2Answers.forEach((ans, idx) => {
+      const selectedType = part2Map[idx][ans - 1];
+      if (selectedType && scores[selectedType] !== undefined) {
+        scores[selectedType] += 3;
+      }
+    });
+
+    const maxPerType = 36;
+    const maxTotal = 120;
+
+    const typeScores = {};
+    let total = 0;
+    for (let type in scores) {
+      total += scores[type];
+      typeScores[type] = Math.round(scores[type] / maxPerType * 100);
+    }
+    const totalScore = Math.round(total / maxTotal * 100);
+
+    document.getElementById("totalScore").innerHTML = `진상력 점수: <strong>${totalScore}</strong> <span style="color:#333; font-size: 20px">/ 100점</span>`;
+
+    const maxType = Object.keys(typeScores).reduce((a, b) => scores[a] >= scores[b] ? a : b);
+    const emojis = {
+      "권리과잉형": "🧷",
+      "과민반응형": "💢",
+      "오지랖형": "🗣️",
+      "자기중심형": "🙋",
+      "피해망상형": "😨"
+    };
+    const explanations = {
+      "권리과잉형": ["자신이 ‘정당한 대우’를 받을 자격이 있다고 과도하게 믿으며, 작은 불편이나 실수에도 보상을 요구하거나 강하게 항의함.", [
+        "“내가 돈을 냈으니 당연히 ○○해야 한다”는 식의 사고",
+        "실수나 불편에 대해 과잉 대응하며 보상을 요구함",
+        "SNS 후기나 고객센터 항의를 정당한 ‘권리 행사’로 여김",
+        "서비스 제공자(직원, 점원 등)를 일방적 하급자로 인식"
+      ], "때로는 상대방의 사정도 들어보는 유연함이 필요합니다."],
+      "과민반응형": ["작은 자극이나 일상적 불편에도 감정적으로 과도하게 반응하며, 짜증·분노·방어 반응이 빠르게 일어나는 유형.", [
+        "사소한 일에 바로 짜증",
+        "‘무시당했다’는 말에 민감",
+        "반박, 비판, 약속 지연에 감정 폭발",
+        "사회적 의견 충돌(댓글 등)에 민감하게 반응"
+      ], "감정적 반응 전 한 템포 쉬어가는 습관을 가져보세요."],
+      "오지랖형": ["타인의 행동, 결정, 실수 등에 과도하게 개입하거나 조언하며, 자신의 개입을 ‘도움’이나 ‘정의’로 착각하는 경향.", [
+        "남의 문제에 해결책을 주거나 개입하려 함",
+        "실수, 비효율, 잘못된 판단에 참견 욕구가 강함",
+        "규칙 위반, 게시글, 연애 문제까지 간섭",
+        "‘그게 아니라 이렇게 해야지’가 기본 태도"
+      ], "간섭보다 공감, 조언보다 경청이 더 큰 힘이 됩니다."],
+      "자기중심형": ["상대의 입장보다 자신의 편의와 감정, 필요를 우선시하며 행동하는 유형.", [
+        "공공장소 예절 무시 (통화, 시끄러움 등)",
+        "줄 안 서기, 먼저 타기 등 우선권 선점",
+        "불편함에 대한 공감 결여",
+        "‘내가 불편한 게 우선’이라는 태도"
+      ], "한 걸음 물러서 타인의 입장을 상상해보세요."],
+      "피해망상형": ["타인의 행동이나 상황을 부정적으로 해석하고, 자신이 소외되거나 무시당한다고 느끼는 유형.", [
+        "단톡방 무응답 → "나만 빼는구나"",
+        "누가 웃기만 해도 "나 비웃는 거 아냐?"",
+        "답장 없음, 반응 없음 → 부정적 해석",
+        "‘의도 없음’을 ‘나에 대한 공격’으로 해석"
+      ], "생각보다 세상은 당신을 중심으로 돌아가지 않습니다 :)"],
+    };
+
+    const dom = document.getElementById("dominantTypeSection");
+    const [desc, bullets, tip] = explanations[maxType];
+    dom.innerHTML = `<h3>${emojis[maxType]} ${maxType} <span style="font-weight: normal">(${maxType} Type)</span></h3><p>${desc}</p><ul>${bullets.map(b => `<li>${b}</li>`).join("")}</ul><p><em>Tip: ${tip}</em></p>`;
 
     function drawRadarChart(scores) {
       const ctx = document.getElementById("radarChart").getContext("2d");
