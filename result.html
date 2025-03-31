@@ -107,6 +107,18 @@
 
     <div class="type-summary" id="typeSummary"></div>
 
+    <div style="margin-top: 40px; text-align: center;">
+  <button onclick="goToStart()" style="margin: 4px; padding: 10px 20px; font-size: 14px; border: none; background-color: #5c7cfa; color: white; border-radius: 6px; cursor: pointer;">
+    처음부터 다시하기
+  </button>
+  <button onclick="shareResult()" style="margin: 4px; padding: 10px 20px; font-size: 14px; border: none; background-color: #20c997; color: white; border-radius: 6px; cursor: pointer;">
+    결과 공유하기
+  </button>
+  <button onclick="goToAbout()" style="margin: 4px; padding: 10px 20px; font-size: 14px; border: none; background-color: #868e96; color: white; border-radius: 6px; cursor: pointer;">
+    만든 사람
+  </button>
+</div>
+
     <div class="toggle-button" id="toggleChart">▼ 유형별 점수 보기</div>
     <div id="chartSection">
       <canvas id="radarChart" width="300" height="300"></canvas>
@@ -253,6 +265,24 @@ document.getElementById("toggleChart").addEventListener("click", () => {
     setTimeout(() => drawRadarChart(typeScores), 50);
   }
 });
+
+    function goToStart() {
+  if (confirm("테스트를 처음부터 다시 진행하시겠어요?")) {
+    localStorage.clear();
+    window.location.href = "index.html";
+  }
+}
+
+function shareResult() {
+  const url = window.location.href;
+  navigator.clipboard.writeText(url).then(() => {
+    alert("결과 페이지 주소가 클립보드에 복사되었습니다!");
+  });
+}
+
+function goToAbout() {
+  window.location.href = "about.html";  // 만든 사람 소개 페이지 경로
+}
 
     function drawRadarChart(scores) {
       const ctx = document.getElementById("radarChart").getContext("2d");
