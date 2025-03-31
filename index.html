@@ -2,27 +2,98 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>진상력 테스트</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+      background-color: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+    }
+    .container {
+      max-width: 600px;
+      padding: 24px;
+    }
+    h1 {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    .version {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 32px;
+    }
+    .hook {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 16px;
+      color: #333;
+    }
+    .sub {
+      font-size: 16px;
+      margin-bottom: 24px;
+      color: #555;
+    }
+    .info {
+      font-size: 14px;
+      color: #999;
+      margin-top: 16px;
+    }
+    .start-button {
+      background-color: #5c7cfa;
+      color: white;
+      font-size: 20px;
+      padding: 16px 32px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background-color 0.2s ease-in-out;
+    }
+    .start-button:hover {
+      background-color: #4c6ef5;
+    }
+  </style>
 </head>
 <body>
-  <h1>🧪 진상력 테스트</h1>
-  <p>아래 문항에 솔직하게 응답해 주세요.</p>
-
-  <form id="testForm">
-    <div id="questions"></div>
-
-    <button type="submit">제출하기</button>
-  </form>
-
-  <div id="result" style="display: none; margin-top: 30px;">
-    <h2>🧾 결과</h2>
-    <p id="scoreText"></p>
-    <p id="profileText"></p>
+  <div class="container">
+    <div class="version">진상력 테스트 <span style="font-size: 14px; color: gray;">ver.1</span></div>
+    <div class="hook">당신 안의 민폐 지수, 지금 측정합니다.</div>
+    <div class="sub">웃으면서도 뜨끔한 당신을 위한 진상력 셀프 진단</div>
+    <button class="start-button" onclick="location.href='part1.html'">진상력 측정하러 GO!</button>
+    <div class="info">
+      ✅ 지금까지 <span id="counter">0</span>명이 참여함<br />
+      🚨 테스트 결과에 마음의 상처를 받을 수 있습니다
+    </div>
   </div>
 
   <script>
-    // 다음 단계에서 여기에 질문 넣고, 채점 로직 작성할 거야
-    document.getElementById('questions').innerHTML = '<p>문항 준비 중입니다...</p>';
+    // 카운터 애니메이션
+    function animateCount(target, end, duration = 1500) {
+      const stepTime = Math.max(Math.floor(duration / end), 20);
+      let current = 0;
+      const counter = document.getElementById(target);
+      const timer = setInterval(() => {
+        current += Math.ceil(end / (duration / stepTime));
+        if (current >= end) {
+          counter.textContent = end.toLocaleString();
+          clearInterval(timer);
+        } else {
+          counter.textContent = current.toLocaleString();
+        }
+      }, stepTime);
+    }
+
+    // 시작값: 0, 최종값: 12438 (임시)
+    document.addEventListener("DOMContentLoaded", () => {
+      animateCount("counter", 12438);
+    });
   </script>
 </body>
 </html>
