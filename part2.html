@@ -215,14 +215,15 @@ function nextQuestion() {
   }
   current++;
   if (current >= questions.length) {
-    localStorage.setItem("part2Answers", JSON.stringify(selected)); // 🔹 2-1
-    window.location.href = "result.html"; // 🔹 2-2
+    // part1 + part2 응답을 URL 쿼리로 변환하여 result.html로 이동
+    const allAnswers = part1Answers.concat(selected.map(i => i + 1));
+    const query = allAnswers.map((a, i) => `p${i + 1}=${a}`).join("&");
+    window.location.href = `result.html?${query}`;
   } else {
     renderQuestion();
   }
 }
 
-    renderQuestion();
   </script>
 </body>
 </html>
