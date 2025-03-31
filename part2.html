@@ -186,8 +186,10 @@
     ];
 
     const part1Answers = JSON.parse(localStorage.getItem("part1Answers") || "[]");
-    console.log("part1에서 넘어온 답변들:", part1Answers);
-    
+    console.log("✅ 로컬스토리지 상태 확인");
+    console.log("part1Answers:", localStorage.getItem("part1Answers"));
+    console.log("part2Answers:", localStorage.getItem("part2Answers"));
+
     let current = 0;
     const selected = [];
 
@@ -221,6 +223,7 @@ function nextQuestion() {
     window.location.href = `result.html?${query}`;
   } else {
     renderQuestion();
+    
   }
 }
 
