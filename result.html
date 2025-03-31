@@ -138,6 +138,10 @@
     const params = new URLSearchParams(window.location.search);
     const answers = [...Array(25)].map((_, i) => parseInt(params.get(`p${i+1}`), 10));
 
+      if (answers.length !== 25 || answers.some(a => isNaN(a))) {
+    alert("응답이 누락되었거나 잘못된 값이 감지되었습니다. 테스트를 다시 시작해주세요.");
+    location.href = "index.html";
+  }
     const typeScoresRaw = {
       "권리과잉형": 0, "과민반응형": 0, "오지랖형": 0, "자기중심형": 0, "피해망상형": 0
     };
