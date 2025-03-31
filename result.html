@@ -243,11 +243,16 @@ const typeDescriptions = {
       document.getElementById("typeSummary").innerHTML = html;
     }
 
-    document.getElementById("toggleChart").addEventListener("click", () => {
-      const section = document.getElementById("chartSection");
-      section.style.display = section.style.display === "none" ? "block" : "none";
-      if (section.style.display === "block") drawRadarChart(typeScores);
-    });
+document.getElementById("toggleChart").addEventListener("click", () => {
+  const section = document.getElementById("chartSection");
+  const isHidden = section.style.display === "none";
+
+  section.style.display = isHidden ? "block" : "none";
+
+  if (isHidden) {
+    setTimeout(() => drawRadarChart(typeScores), 50);
+  }
+});
 
     function drawRadarChart(scores) {
       const ctx = document.getElementById("radarChart").getContext("2d");
