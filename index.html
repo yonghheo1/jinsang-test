@@ -67,6 +67,25 @@
     .start-button:hover {
       background-color: #4c6ef5;
     }
+    .share-button {
+    background-color: #20c997;
+    color: white;
+    font-size: 16px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-top: 12px;
+    }
+    .share-button:hover {
+    background-color: #12b886;
+    }
+    .share-guide {
+    font-size: 13px;
+    color: #666;
+    margin-top: 6px;
+    }
+    
   </style>
 </head>
 <body>
@@ -78,6 +97,8 @@
     <div class="hook">당신 안의 민폐 지수, 지금 측정합니다.</div>
     <div class="sub">웃으면서도 뜨끔한 당신을 위한 진상력 셀프 진단</div>
     <button class="start-button" onclick="location.href='part1.html'">진상력 측정하러 GO!</button>
+    <button onclick="shareTest()" class="share-button">테스트 공유하기</button>
+    <p class="share-guide">단톡방에 던지면 분위기 터집니다 😎</p>
     <div class="info">
       ✅ 지금까지 <span id="count">0</span>명이 참여함<br />
       🚨 테스트 결과에 마음의 상처를 받을 수 있습니다
@@ -101,6 +122,15 @@
       }
       countEl.textContent = Math.floor(current).toLocaleString();
     }, 1000 / frameRate);
+
+function shareTest() {
+  const url = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/index.html');
+  navigator.clipboard.writeText(url).then(() => {
+    alert("테스트 링크가 클립보드에 복사되었습니다!");
+  });
+}
+
+
   </script>
 </body>
 </html>
