@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>진상력 결과</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
@@ -105,7 +105,7 @@
       </tbody>
     </table>
 
-    <div id="dominantTypeSection" class="type-summary"></div>
+    <div class="type-summary" id="typeSummary"></div>
 
     <div class="toggle-button" id="toggleChart">▼ 유형별 점수 보기</div>
     <div id="chartSection">
@@ -114,9 +114,6 @@
   </div>
 
   <script>
-    const part1Answers = JSON.parse(localStorage.getItem("part1Answers") || "[]");
-    const part2Answers = JSON.parse(localStorage.getItem("part2Answers") || "[]");
-
     const part1Map = {
       "과민반응형": [6, 10, 15],
       "권리과잉형": [2, 3, 5],
@@ -132,90 +129,121 @@
       ["과민반응형", "권리과잉형", "오지랖형", null],
       ["피해망상형", null, "오지랖형", "과민반응형"],
       ["권리과잉형", "자기중심형", null, "오지랖형"],
-      [null, "과민반응형", "자기중심형", "피해망상형"],
+      [null, "피해망상형", "자기중심형", "진상 아님"],
       ["오지랖형", "과민반응형", null, "피해망상형"],
       ["권리과잉형", null, "과민반응형", "자기중심형"],
-      ["자기중심형", null, "권리과잉형", "피해망상형"]
+      ["피해망상형", "권리과잉형", null, "피해망상형"]
     ];
 
-    const scores = {
-      "권리과잉형": 0,
-      "과민반응형": 0,
-      "오지랖형": 0,
-      "자기중심형": 0,
-      "피해망상형": 0
+    const params = new URLSearchParams(window.location.search);
+    const answers = [...Array(25)].map((_, i) => parseInt(params.get(`p${i+1}`), 10));
+
+    const typeScoresRaw = {
+      "권리과잉형": 0, "과민반응형": 0, "오지랖형": 0, "자기중심형": 0, "피해망상형": 0
     };
 
-    for (let type in part1Map) {
-      part1Map[type].forEach(idx => {
-        scores[type] += part1Answers[idx] || 0;
-      });
-    }
-
-    part2Answers.forEach((ans, idx) => {
-      const selectedType = part2Map[idx][ans - 1];
-      if (selectedType && scores[selectedType] !== undefined) {
-        scores[selectedType] += 3;
-      }
+    Object.entries(part1Map).forEach(([type, indices]) => {
+      indices.forEach(i => typeScoresRaw[type] += answers[i - 1]);
     });
 
-    const maxPerType = 36;
-    const maxTotal = 120;
+    part2Map.forEach((row, i) => {
+      const choice = answers[15 + i] - 1;
+      const type = row[choice];
+      if (type && typeScoresRaw[type] !== undefined) typeScoresRaw[type] += 3;
+    });
 
     const typeScores = {};
     let total = 0;
-    for (let type in scores) {
-      total += scores[type];
-      typeScores[type] = Math.round(scores[type] / maxPerType * 100);
+    for (const [type, score] of Object.entries(typeScoresRaw)) {
+      const scaled = Math.round(score / 36 * 100);
+      typeScores[type] = scaled;
+      total += score;
     }
-    const totalScore = Math.round(total / maxTotal * 100);
 
-    document.getElementById("totalScore").innerHTML = `진상력 점수: <strong>${totalScore}</strong> <span style="color:#333; font-size: 20px">/ 100점</span>`;
+    const totalScaled = Math.round(total / 120 * 100);
+    document.getElementById("totalScore").innerHTML = `진상력 점수: <strong>${totalScaled}</strong> <span style="color:#333; font-size: 20px">/ 100점</span>`;
 
-    const maxType = Object.keys(typeScores).reduce((a, b) => scores[a] >= scores[b] ? a : b);
-    const emojis = {
-      "권리과잉형": "🧷",
-      "과민반응형": "💢",
-      "오지랖형": "🗣️",
-      "자기중심형": "🙋",
-      "피해망상형": "😨"
-    };
-    const explanations = {
-      "권리과잉형": ["자신이 ‘정당한 대우’를 받을 자격이 있다고 과도하게 믿으며, 작은 불편이나 실수에도 보상을 요구하거나 강하게 항의함.", [
-        "“내가 돈을 냈으니 당연히 ○○해야 한다”는 식의 사고",
-        "실수나 불편에 대해 과잉 대응하며 보상을 요구함",
-        "SNS 후기나 고객센터 항의를 정당한 ‘권리 행사’로 여김",
-        "서비스 제공자(직원, 점원 등)를 일방적 하급자로 인식"
-      ], "때로는 상대방의 사정도 들어보는 유연함이 필요합니다."],
-      "과민반응형": ["작은 자극이나 일상적 불편에도 감정적으로 과도하게 반응하며, 짜증·분노·방어 반응이 빠르게 일어나는 유형.", [
-        "사소한 일에 바로 짜증",
-        "‘무시당했다’는 말에 민감",
-        "반박, 비판, 약속 지연에 감정 폭발",
-        "사회적 의견 충돌(댓글 등)에 민감하게 반응"
-      ], "감정적 반응 전 한 템포 쉬어가는 습관을 가져보세요."],
-      "오지랖형": ["타인의 행동, 결정, 실수 등에 과도하게 개입하거나 조언하며, 자신의 개입을 ‘도움’이나 ‘정의’로 착각하는 경향.", [
-        "남의 문제에 해결책을 주거나 개입하려 함",
-        "실수, 비효율, 잘못된 판단에 참견 욕구가 강함",
-        "규칙 위반, 게시글, 연애 문제까지 간섭",
-        "‘그게 아니라 이렇게 해야지’가 기본 태도"
-      ], "간섭보다 공감, 조언보다 경청이 더 큰 힘이 됩니다."],
-      "자기중심형": ["상대의 입장보다 자신의 편의와 감정, 필요를 우선시하며 행동하는 유형.", [
-        "공공장소 예절 무시 (통화, 시끄러움 등)",
-        "줄 안 서기, 먼저 타기 등 우선권 선점",
-        "불편함에 대한 공감 결여",
-        "‘내가 불편한 게 우선’이라는 태도"
-      ], "한 걸음 물러서 타인의 입장을 상상해보세요."],
-      "피해망상형": ["타인의 행동이나 상황을 부정적으로 해석하고, 자신이 소외되거나 무시당한다고 느끼는 유형.", [
-        "단톡방 무응답 → "나만 빼는구나"",
-        "누가 웃기만 해도 "나 비웃는 거 아냐?"",
-        "답장 없음, 반응 없음 → 부정적 해석",
-        "‘의도 없음’을 ‘나에 대한 공격’으로 해석"
-      ], "생각보다 세상은 당신을 중심으로 돌아가지 않습니다 :)"],
-    };
+    const dominant = Object.entries(typeScoresRaw).reduce((a, b) => b[1] > a[1] ? b : a)[0];
 
-    const dom = document.getElementById("dominantTypeSection");
-    const [desc, bullets, tip] = explanations[maxType];
-    dom.innerHTML = `<h3>${emojis[maxType]} ${maxType} <span style="font-weight: normal">(${maxType} Type)</span></h3><p>${desc}</p><ul>${bullets.map(b => `<li>${b}</li>`).join("")}</ul><p><em>Tip: ${tip}</em></p>`;
+const typeDescriptions = {
+  "권리과잉형": {
+    emoji: "🧷",
+    title: "권리과잉형 (Entitlement Type)",
+    desc: [
+      "자신이 ‘정당한 대우’를 받을 자격이 있다고 과도하게 믿으며, 작은 불편이나 실수에도 보상을 요구하거나 강하게 항의함.",
+      "“내가 돈을 냈으니 당연히 ○○해야 한다”는 식의 사고",
+      "실수나 불편에 대해 과잉 대응하며 보상을 요구함",
+      "SNS 후기나 고객센터 항의를 정당한 ‘권리 행사’로 여김",
+      "서비스 제공자(직원, 점원 등)를 일방적 하급자로 인식"
+    ],
+    tip: "때로는 상대방의 사정도 들어보는 유연함이 필요합니다."
+  },
+  "과민반응형": {
+    emoji: "💢",
+    title: "과민반응형 (Overreactive Type)",
+    desc: [
+      "작은 자극이나 일상적 불편에도 감정적으로 과도하게 반응하며, 짜증·분노·방어 반응이 빠르게 일어나는 유형.",
+      "사소한 일(길에서 부딪힘, 음식 지연 등)에 바로 짜증",
+      "‘무시당했다’, ‘예민하다는 소리 들었다’는 데 예민함",
+      "반박, 비판, 약속 지연 등에 감정 폭발",
+      "사회적 의견 충돌(댓글 등)에 민감하게 반응"
+    ],
+    tip: "순간적인 감정보다 상대의 의도를 먼저 파악해보세요."
+  },
+  "오지랖형": {
+    emoji: "🗣️",
+    title: "오지랖형 (Overinvolvement Type)",
+    desc: [
+      "타인의 행동, 결정, 실수 등에 과도하게 개입하거나 조언하며, 자신의 개입을 ‘도움’이나 ‘정의’로 착각하는 경향.",
+      "남의 문제에 해결책을 주거나 개입하려 함",
+      "실수, 비효율, 잘못된 판단에 참견 욕구가 강함",
+      "규칙 위반, 잘못된 게시글, 연애 문제까지 간섭",
+      "‘그게 아니라 이렇게 해야지’가 기본 태도"
+    ],
+    tip: "도움보다 먼저 요청이 있었는지를 확인해보세요."
+  },
+  "자기중심형": {
+    emoji: "🙋‍♂️",
+    title: "자기중심형 (Self-Centered Type)",
+    desc: [
+      "상대의 입장이나 사회적 규범보다 자신의 편의와 감정, 필요를 우선시하며 행동하는 유형. 타인에 대한 배려가 낮음.",
+      "공공장소에서의 예절 무시 (통화, 시끄러움 등)",
+      "줄 안 서기, 먼저 타기, 끼어들기 등 우선권 선점",
+      "불편함에 대한 공감 결여",
+      "‘내가 불편한 게 우선’이라는 명확한 태도"
+    ],
+    tip: "내가 편한 만큼 타인도 편할 수 있는지 자문해보세요."
+  },
+  "피해망상형": {
+    emoji: "🔍",
+    title: "피해망상형 (Paranoia-Sensitive Type)",
+    desc: [
+      "타인의 행동이나 상황을 부정적으로 해석하고, 자신이 소외되거나 무시당하고 있다고 느끼는 경향이 강한 유형.",
+      "단톡방 메시지 무시 → \"나만 빼는구나\"",
+      "누가 웃기만 해도 → \"나 비웃는 거 아냐?\"",
+      "약속 제외, 답장 없음, 반응 없음 → 부정적 해석",
+      "타인의 ‘의도 없음’을 해석해 ‘나에 대한 공격’으로 연결"
+    ],
+    tip: "상대가 아니라 나의 해석일 수도 있다는 여지를 남겨두세요."
+  }
+};
+
+    const info = typeDescriptions[dominant];
+    if (info) {
+      const html = `
+        <h3>${info.emoji} ${info.title}</h3>
+        <p>${info.desc[0]}</p>
+        <ul>${info.desc.slice(1).map(line => `<li>${line}</li>`).join('')}</ul>
+        <p><em>Tip: ${info.tip}</em></p>
+      `;
+      document.getElementById("typeSummary").innerHTML = html;
+    }
+
+    document.getElementById("toggleChart").addEventListener("click", () => {
+      const section = document.getElementById("chartSection");
+      section.style.display = section.style.display === "none" ? "block" : "none";
+      if (section.style.display === "block") drawRadarChart(typeScores);
+    });
 
     function drawRadarChart(scores) {
       const ctx = document.getElementById("radarChart").getContext("2d");
@@ -242,14 +270,6 @@
         }
       });
     }
-
-    document.getElementById("toggleChart").addEventListener("click", () => {
-      const section = document.getElementById("chartSection");
-      section.style.display = section.style.display === "none" ? "block" : "none";
-      if (section.style.display === "block") {
-        drawRadarChart(typeScores);
-      }
-    });
   </script>
 </body>
 </html>
