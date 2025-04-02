@@ -178,16 +178,67 @@
       if (type && typeScoresRaw[type] !== undefined) typeScoresRaw[type] += 3;
     });
 
-    const typeScores = {};
     let total = 0;
-    for (const [type, score] of Object.entries(typeScoresRaw)) {
-      const scaled = Math.round(score / 36 * 100);
-      typeScores[type] = scaled;
-      total += score;
-    }
+    Object.values(typeScoresRaw).forEach(score => total += score);
 
-    const totalScaled = Math.round(total / 120 * 100);
-    document.getElementById("totalScore").innerHTML = `진상력 점수: <strong>${totalScaled}</strong> <span style="color:#333; font-size: 20px">/ 100점</span>`;
+// 전체 응답값 가져와 백분위 계산
+async function calculatePercentiles() {
+  const { data: allData, error } = await supabase.from('responses').select(`
+    total_score,
+    type_entitlement,
+    type_overreactive,
+    type_overinvolvement,
+    type_centered,
+    type_paranoia
+  `);
+
+  if (error || !allData) {
+    console.error("📉 백분위 계산 실패:", error);
+    alert("결과 계산 중 오류가 발생했습니다. 다시 시도해주세요.");
+    return;
+  }
+
+  // 백분위 계산 함수
+  const getPercentile = (myScore, allScores) => {
+    const lessThan = allScores.filter(s => s < myScore).length;
+    const equalTo = allScores.filter(s => s === myScore).length;
+    const percentile = ((lessThan + 0.5 * equalTo) / allScores.length) * 100;
+    return Math.round(percentile);
+  };
+
+  // 전체 데이터로부터 각 항목 배열 추출
+  const totalList = allData.map(d => d.total_score);
+  const typeList = {
+    "권리과잉형": allData.map(d => d.type_entitlement),
+    "과민반응형": allData.map(d => d.type_overreactive),
+    "오지랖형": allData.map(d => d.type_overinvolvement),
+    "자기중심형": allData.map(d => d.type_centered),
+    "피해망상형": allData.map(d => d.type_paranoia),
+  };
+
+  // 백분위 계산 결과 저장
+  const percentiles = {
+    total: getPercentile(total, totalList),
+  };
+  for (const [type, list] of Object.entries(typeList)) {
+    percentiles[type] = getPercentile(typeScoresRaw[type], list);
+  }
+
+  // 결과 표시 (총점)
+  document.getElementById("totalScore").innerHTML =
+    `진상력 점수 (백분위): <strong>${percentiles.total}</strong> <span style="color:#333; font-size: 20px">%</span>`;
+
+  // 이후 radar 차트에도 이 백분위 기준으로 반영할 예정
+  drawRadarChart({
+    "권리과잉형": percentiles["권리과잉형"],
+    "과민반응형": percentiles["과민반응형"],
+    "오지랖형": percentiles["오지랖형"],
+    "자기중심형": percentiles["자기중심형"],
+    "피해망상형": percentiles["피해망상형"]
+  });
+}
+
+calculatePercentiles(); // 페이지 로딩 시 백분위 계산
 
     const dominant = Object.entries(typeScoresRaw).reduce((a, b) => b[1] > a[1] ? b : a)[0];
 
