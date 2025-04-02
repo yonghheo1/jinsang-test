@@ -10,7 +10,6 @@
   <script>
     const SUPABASE_URL = 'https://jeacvuzntcfbbfaevzhg.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplYWN2dXpudGNmYmJmYWV2emhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1Njc3NjAsImV4cCI6MjA1OTE0Mzc2MH0.boq7XH_mw4cuZ6dARc5U8iGSXvrS2haDmWLJFz8i26g';
-
     const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   </script>
   <style>
@@ -236,6 +235,7 @@ async function calculatePercentiles() {
     "자기중심형": percentiles["자기중심형"],
     "피해망상형": percentiles["피해망상형"]
   });
+  await saveToSupabase();
 }
 
 calculatePercentiles(); // 페이지 로딩 시 백분위 계산
@@ -323,7 +323,16 @@ document.getElementById("toggleChart").addEventListener("click", () => {
   section.style.display = isHidden ? "block" : "none";
 
   if (isHidden) {
-    setTimeout(() => drawRadarChart(typeScores), 50);
+    setTimeout(() => {
+    drawRadarChart({
+    "권리과잉형": percentiles["권리과잉형"],
+    "과민반응형": percentiles["과민반응형"],
+    "오지랖형": percentiles["오지랖형"],
+    "자기중심형": percentiles["자기중심형"],
+    "피해망상형": percentiles["피해망상형"]
+  });
+}, 50);
+
   }
 });
 
@@ -391,8 +400,6 @@ async function saveToSupabase() {
     console.log("✅ Supabase에 저장 완료!", data);
   }
 }
-
-saveToSupabase(); // 페이지 로딩 시 저장 실행  
     
   </script>
 </body>
