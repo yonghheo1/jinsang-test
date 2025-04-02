@@ -320,6 +320,29 @@ function goToAbout() {
         }
       });
     }
+
+  // Supabase에 저장할 함수
+async function saveToSupabase() {
+  const { data, error } = await supabase.from('responses').insert([{
+    total_score: total,
+    type_entitlement: typeScoresRaw["권리과잉형"],
+    type_overreactive: typeScoresRaw["과민반응형"],
+    type_overinvolvement: typeScoresRaw["오지랖형"],
+    type_centered: typeScoresRaw["자기중심형"],
+    type_paranoia: typeScoresRaw["피해망상형"],
+    dominant_type: dominant,
+    raw_answers: JSON.stringify(answers)
+  }]);
+
+  if (error) {
+    console.error("❌ Supabase 저장 오류:", error);
+  } else {
+    console.log("✅ Supabase에 저장 완료!", data);
+  }
+}
+
+saveToSupabase(); // 페이지 로딩 시 저장 실행  
+    
   </script>
 </body>
 </html>
