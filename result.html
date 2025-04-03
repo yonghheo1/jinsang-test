@@ -284,23 +284,24 @@
     /*******************************************
      7) 차트 토글 / 레이더 차트
     ********************************************/
-    document.getElementById("toggleChart").addEventListener("click", () => {
-      const section = document.getElementById("chartSection");
-      const isHidden = section.style.display === "none";
-      section.style.display = isHidden ? "block" : "none";
+document.getElementById("toggleChart").addEventListener("click", () => {
+  const section = document.getElementById("chartSection");
+  const isHidden = section.style.display === "none";
+  section.style.display = isHidden ? "block" : "none";
 
-      if (isHidden && percentiles) {
-        setTimeout(() => {
-          drawRadarChart({
-            "권리과잉형": percentiles["권리과잉형"],
-            "과민반응형": percentiles["과민반응형"],
-            "오지랖형": percentiles["오지랖형"],
-            "자기중심형": percentiles["자기중심형"],
-            "피해망상형": percentiles["피해망상형"]
-          });
-        }, 50);
-      }
+  if (isHidden && percentiles) {
+    requestAnimationFrame(() => {
+      drawRadarChart({
+        "권리과잉형": percentiles["권리과잉형"],
+        "과민반응형": percentiles["과민반응형"],
+        "오지랖형": percentiles["오지랖형"],
+        "자기중심형": percentiles["자기중심형"],
+        "피해망상형": percentiles["피해망상형"]
+      });
     });
+  }
+});
+
 
     let radarChartInstance;  // <-- 제일 위에 선언
     
