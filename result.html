@@ -89,6 +89,10 @@
 <body>
   <div class="container">
     <h2 style="text-align:center">당신의 진상력 결과</h2>
+    <div id="evaluationBox" style="text-align: center; margin-top: 16px;">
+    <div id="badgeEmoji" style="font-size: 48px;">🟠</div>
+    <div id="badgeText" style="font-size: 20px; font-weight: bold; margin-top: 4px;">경계진상</div>
+    </div>
     <div class="score" id="totalScore">
     진상력 점수 (백분위): <strong>계산 중...</strong>
     </div>
@@ -245,6 +249,8 @@
       진상력 점수 (백분위): <strong>${percentiles.total}</strong> <span style="color:#333; font-size: 20px">%</span><br>
       <span style="font-size:14px; color:#666;">🤓 당신보다 점수 낮은 사람이 몇 %인지 알려주는 수치입니다!</span>
       `;
+
+      updateTopBadge(percentiles.total);
 
       // 5-6) 레이더 차트도 백분위로 그림
       drawRadarChart({
@@ -430,6 +436,25 @@ function goToAbout() {
   window.location.href = "about.html";  // 만든 사람 소개 페이지 경로
 }
 
+function updateTopBadge(p) {
+  const badgeEmoji = document.getElementById("badgeEmoji");
+  const badgeText = document.getElementById("badgeText");
+
+  if (p < 25) {
+    badgeEmoji.textContent = "🟢";
+    badgeText.textContent = "모범시민";
+  } else if (p < 50) {
+    badgeEmoji.textContent = "🟡";
+    badgeText.textContent = "잠재진상";
+  } else if (p < 75) {
+    badgeEmoji.textContent = "🟠";
+    badgeText.textContent = "경계진상";
+  } else {
+    badgeEmoji.textContent = "🔴";
+    badgeText.textContent = "고급진상";
+  }
+}    
+    
 </script>
 </body>
 </html>
