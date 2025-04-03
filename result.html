@@ -121,6 +121,9 @@
   <button onclick="goToStart()" style="margin: 4px; padding: 10px 20px; font-size: 14px; border: none; background-color: #5c7cfa; color: white; border-radius: 6px; cursor: pointer;">
     처음부터 다시하기
   </button>
+  <button onclick="copyMyResult()" style="margin: 4px; padding: 10px 20px; font-size: 14px; border: none; background-color: #ff922b; color: white; border-radius: 6px; cursor: pointer;">
+  결과 공유하기
+  </button>
   <button onclick="shareTest()" style="margin: 4px; padding: 10px 20px; font-size: 14px; border: none; background-color: #20c997; color: white; border-radius: 6px; cursor: pointer;">
     테스트 공유하기
   </button>
@@ -427,6 +430,22 @@ const typeDescriptions = {
   }
 }
 
+    function copyMyResult() {
+  const score = percentiles?.total ?? "??";
+  const badge = document.getElementById("badgeText")?.textContent ?? "결과 미확인";
+
+  const message = `[진상력 테스트 결과]
+${badge} 등급
+진상력 점수 (백분위): ${score}%
+나도 놀란 내 모습...😅
+
+👉 너도 해봐: https://bit.ly/jinsangtest1`;
+
+  navigator.clipboard.writeText(message).then(() => {
+    alert("📋 결과가 클립보드에 복사되었습니다!");
+  });
+}
+   
 function shareTest() {
   const url = "https://bit.ly/jinsangtest1";
   navigator.clipboard.writeText(url).then(() => {
