@@ -117,7 +117,7 @@
   <script>
     const SUPABASE_URL = 'https://jeacvuzntcfbbfaevzhg.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplYWN2dXpudGNmYmJmYWV2emhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1Njc3NjAsImV4cCI6MjA1OTE0Mzc2MH0.boq7XH_mw4cuZ6dARc5U8iGSXvrS2haDmWLJFz8i26g';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     
   // 참여자 수를 불러오는 함수
