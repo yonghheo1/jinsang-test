@@ -296,31 +296,34 @@
       }
     });
 
+    let radarChartInstance;  // <-- 제일 위에 선언
+    
     function drawRadarChart(scores) {
       const ctx = document.getElementById("radarChart").getContext("2d");
-      new Chart(ctx, {
-        type: "radar",
-        data: {
-          labels: Object.keys(scores),
-          datasets: [{
-            label: "유형별 점수 (백분위)",
-            data: Object.values(scores),
-            backgroundColor: "rgba(91, 128, 255, 0.2)",
-            borderColor: "rgba(91, 128, 255, 1)",
-            pointBackgroundColor: "rgba(91, 128, 255, 1)",
-            borderWidth: 2
-          }]
-        },
-        options: {
-          scales: {
-            r: {
-              suggestedMin: 0,
-              suggestedMax: 100
-            }
-          }
+      if (radarChartInstance) radarChartInstance.destroy();  // <-- 이 한 줄!
+      radarChartInstance = new Chart(ctx, {
+      type: "radar",
+      data: {
+      labels: Object.keys(scores),
+      datasets: [{
+        label: "유형별 점수 (백분위)",
+        data: Object.values(scores),
+        backgroundColor: "rgba(91, 128, 255, 0.2)",
+        borderColor: "rgba(91, 128, 255, 1)",
+        pointBackgroundColor: "rgba(91, 128, 255, 1)",
+        borderWidth: 2
+      }]
+    },
+    options: {
+      scales: {
+        r: {
+          suggestedMin: 0,
+          suggestedMax: 100
         }
-      });
+      }
     }
+  });
+}
 
 const typeDescriptions = {
   "권리과잉형": {
