@@ -241,8 +241,10 @@
       }
 
       // 5-5) 총점 백분위 화면 표시
-      document.getElementById("totalScore").innerHTML =
-        `진상력 점수 (백분위): <strong>${percentiles.total}</strong> <span style="color:#333; font-size: 20px">%</span>`;
+      document.getElementById("totalScore").innerHTML = `
+      진상력 점수 (백분위): <strong>${percentiles.total}</strong> <span style="color:#333; font-size: 20px">%</span><br>
+      <span style="font-size:14px; color:#666;">🤓 당신보다 점수 낮은 사람이 몇 %인지 알려주는 수치입니다!</span>
+      `;
 
       // 5-6) 레이더 차트도 백분위로 그림
       drawRadarChart({
