@@ -442,6 +442,16 @@ function updateTopBadge(p) {
   const badgeEmoji = document.getElementById("badgeEmoji");
   const badgeText = document.getElementById("badgeText");
 
+  if (p === undefined || isNaN(p)) {
+    // 초기 상태 그대로 유지
+    badgeEmoji.textContent = "⏳";
+    badgeText.textContent = "진상력 분석 중...";
+    badgeText.style.color = "#888";
+    return;
+  }
+
+  badgeText.style.color = "#000"; // 계산된 결과는 진하게 표시
+
   if (p < 25) {
     badgeEmoji.textContent = "🟢";
     badgeText.textContent = "모범시민";
@@ -455,7 +465,8 @@ function updateTopBadge(p) {
     badgeEmoji.textContent = "🔴";
     badgeText.textContent = "고급진상";
   }
-}    
+}
+
     
 </script>
 </body>
