@@ -5,12 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>진상력 결과</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-   <!-- Supabase 연결용 라이브러리 -->
+  <!-- Supabase 연결용 라이브러리 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
   <script>
     const SUPABASE_URL = 'https://jeacvuzntcfbbfaevzhg.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplYWN2dXpudGNmYmJmYWV2emhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1Njc3NjAsImV4cCI6MjA1OTE0Mzc2MH0.boq7XH_mw4cuZ6dARc5U8iGSXvrS2haDmWLJFz8i26g';
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   </script>
   <style>
     body {
@@ -136,14 +136,9 @@
   </div>
 
   <script>
-    const part1Map = {
-      "과민반응형": [6, 10, 15],
-      "권리과잉형": [2, 3, 5],
-      "오지랖형": [8, 11, 13],
-      "자기중심형": [4, 7, 14],
-      "피해망상형": [1, 9, 12]
-    };
+    let percentiles;
 
+    const part1Map = { "과민반응형": [6,10,15], "권리과잉형": [2,3,5], "오지랖형": [8,11,13], "자기중심형": [4,7,14], "피해망상형": [1,9,12] };
     const part2Map = [
       ["피해망상형", "자기중심형", null, "오지랖형"],
       ["권리과잉형", "오지랖형", "과민반응형", null],
@@ -157,20 +152,13 @@
       ["피해망상형", "권리과잉형", null, "피해망상형"]
     ];
 
-      const answers = JSON.parse(localStorage.getItem("allAnswers") || "[]");
-
-      if (answers.length !== 25 || answers.some(a => isNaN(a))) {
-    alert("응답이 누락되었거나 잘못된 값이 감지되었습니다. 테스트를 다시 시작해주세요.");
-    location.href = "index.html";
-  }
-    const typeScoresRaw = {
-      "권리과잉형": 0, "과민반응형": 0, "오지랖형": 0, "자기중심형": 0, "피해망상형": 0
-    };
+    const answers = JSON.parse(localStorage.getItem("allAnswers") || "[]");
+    let percentiles;
+    const typeScoresRaw = { "권리과잉형": 0, "과민반응형": 0, "오지랖형": 0, "자기중심형": 0, "피해망상형": 0 };
 
     Object.entries(part1Map).forEach(([type, indices]) => {
       indices.forEach(i => typeScoresRaw[type] += answers[i - 1]);
     });
-
     part2Map.forEach((row, i) => {
       const choice = answers[15 + i] - 1;
       const type = row[choice];
@@ -180,65 +168,56 @@
     let total = 0;
     Object.values(typeScoresRaw).forEach(score => total += score);
 
-// 전체 응답값 가져와 백분위 계산
-async function calculatePercentiles() {
-  const { data: allData, error } = await supabase.from('responses').select(`
-    total_score,
-    type_entitlement,
-    type_overreactive,
-    type_overinvolvement,
-    type_centered,
-    type_paranoia
-  `);
+    async function calculatePercentiles() {
+      const { data: allData, error } = await supabaseClient.from('responses').select(`
+        total_score,
+        type_entitlement,
+        type_overreactive,
+        type_overinvolvement,
+        type_centered,
+        type_paranoia
+      `);
 
-  if (error || !allData) {
-    console.error("📉 백분위 계산 실패:", error);
-    alert("결과 계산 중 오류가 발생했습니다. 다시 시도해주세요.");
-    return;
-  }
+      if (error || !allData) {
+        console.error("📉 백분위 계산 실패:", error);
+        alert("결과 계산 중 오류가 발생했습니다. 다시 시도해주세요.");
+        return;
+      }
 
-  // 백분위 계산 함수
-  const getPercentile = (myScore, allScores) => {
-    const lessThan = allScores.filter(s => s < myScore).length;
-    const equalTo = allScores.filter(s => s === myScore).length;
-    const percentile = ((lessThan + 0.5 * equalTo) / allScores.length) * 100;
-    return Math.round(percentile);
-  };
+      const getPercentile = (myScore, allScores) => {
+        const lessThan = allScores.filter(s => s < myScore).length;
+        const equalTo = allScores.filter(s => s === myScore).length;
+        return Math.round(((lessThan + 0.5 * equalTo) / allScores.length) * 100);
+      };
 
-  // 전체 데이터로부터 각 항목 배열 추출
-  const totalList = allData.map(d => d.total_score);
-  const typeList = {
-    "권리과잉형": allData.map(d => d.type_entitlement),
-    "과민반응형": allData.map(d => d.type_overreactive),
-    "오지랖형": allData.map(d => d.type_overinvolvement),
-    "자기중심형": allData.map(d => d.type_centered),
-    "피해망상형": allData.map(d => d.type_paranoia),
-  };
+      const totalList = allData.map(d => d.total_score);
+      const typeList = {
+        "권리과잉형": allData.map(d => d.type_entitlement),
+        "과민반응형": allData.map(d => d.type_overreactive),
+        "오지랖형": allData.map(d => d.type_overinvolvement),
+        "자기중심형": allData.map(d => d.type_centered),
+        "피해망상형": allData.map(d => d.type_paranoia)
+      };
 
-  // 백분위 계산 결과 저장
-  const percentiles = {
-    total: getPercentile(total, totalList),
-  };
-  for (const [type, list] of Object.entries(typeList)) {
-    percentiles[type] = getPercentile(typeScoresRaw[type], list);
-  }
+      percentiles = { total: getPercentile(total, totalList) };
+      for (const [type, list] of Object.entries(typeList)) {
+        percentiles[type] = getPercentile(typeScoresRaw[type], list);
+      }
 
-  // 결과 표시 (총점)
-  document.getElementById("totalScore").innerHTML =
-    `진상력 점수 (백분위): <strong>${percentiles.total}</strong> <span style="color:#333; font-size: 20px">%</span>`;
+      document.getElementById("totalScore").innerHTML =
+        `진상력 점수 (백분위): <strong>${percentiles.total}</strong> <span style="color:#333; font-size: 20px">%</span>`;
 
-  // 이후 radar 차트에도 이 백분위 기준으로 반영할 예정
-  drawRadarChart({
-    "권리과잉형": percentiles["권리과잉형"],
-    "과민반응형": percentiles["과민반응형"],
-    "오지랖형": percentiles["오지랖형"],
-    "자기중심형": percentiles["자기중심형"],
-    "피해망상형": percentiles["피해망상형"]
-  });
-  await saveToSupabase();
-}
+      drawRadarChart({
+        "권리과잉형": percentiles["권리과잉형"],
+        "과민반응형": percentiles["과민반응형"],
+        "오지랖형": percentiles["오지랖형"],
+        "자기중심형": percentiles["자기중심형"],
+        "피해망상형": percentiles["피해망상형"]
+      });
+      await saveToSupabase();
+    }
 
-calculatePercentiles(); // 페이지 로딩 시 백분위 계산
+    calculatePercentiles();
 
     const dominant = Object.entries(typeScoresRaw).reduce((a, b) => b[1] > a[1] ? b : a)[0];
 
@@ -383,7 +362,7 @@ function goToAbout() {
 
   // Supabase에 저장할 함수
 async function saveToSupabase() {
-  const { data, error } = await supabase.from('responses').insert([{
+  const { data, error } = await supabaseClient.from('responses').insert([{
     total_score: total,
     type_entitlement: typeScoresRaw["권리과잉형"],
     type_overreactive: typeScoresRaw["과민반응형"],
