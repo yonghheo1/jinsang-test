@@ -7,11 +7,6 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Supabase 연결용 라이브러리 -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-  <script>
-    const SUPABASE_URL = 'https://jeacvuzntcfbbfaevzhg.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplYWN2dXpudGNmYmJmYWV2emhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1Njc3NjAsImV4cCI6MjA1OTE0Mzc2MH0.boq7XH_mw4cuZ6dARc5U8iGSXvrS2haDmWLJFz8i26g';
-    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  </script>
   <style>
     body {
       font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
@@ -134,9 +129,26 @@
       <canvas id="radarChart" width="300" height="300"></canvas>
     </div>
   </div>
-
+  
   <script>
+    const SUPABASE_URL = 'https://jeacvuzntcfbbfaevzhg.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImplYWN2dXpudGNmYmJmYWV2emhnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM1Njc3NjAsImV4cCI6MjA1OTE0Mzc2MH0.boq7XH_mw4cuZ6dARc5U8iGSXvrS2haDmWLJFz8i26g';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  
     let percentiles;
+    let dominant;
+    
+    const answers = JSON.parse(localStorage.getItem("allAnswers") || "[]");
+    if (answers.length !== 25 || answers.some(a => isNaN(a))) {
+      alert("응답이 누락되었거나 잘못된 값이 감지되었습니다. 테스트를 다시 시작해주세요.");
+      location.href = "index.html";
+    }
+
+    const typeScoresRaw = {
+      "권리과잉형": 0, "과민반응형": 0,
+      "오지랖형": 0, "자기중심형": 0,
+      "피해망상형": 0
+    };
 
     const part1Map = { "과민반응형": [6,10,15], "권리과잉형": [2,3,5], "오지랖형": [8,11,13], "자기중심형": [4,7,14], "피해망상형": [1,9,12] };
     const part2Map = [
@@ -152,31 +164,46 @@
       ["피해망상형", "권리과잉형", null, "피해망상형"]
     ];
 
-    const answers = JSON.parse(localStorage.getItem("allAnswers") || "[]");
-    let percentiles;
-    const typeScoresRaw = { "권리과잉형": 0, "과민반응형": 0, "오지랖형": 0, "자기중심형": 0, "피해망상형": 0 };
-
+  /*******************************************
+     3) typeScoresRaw 계산 (원점수)
+    ********************************************/
+    // part1
     Object.entries(part1Map).forEach(([type, indices]) => {
       indices.forEach(i => typeScoresRaw[type] += answers[i - 1]);
     });
+    // part2
     part2Map.forEach((row, i) => {
       const choice = answers[15 + i] - 1;
       const type = row[choice];
-      if (type && typeScoresRaw[type] !== undefined) typeScoresRaw[type] += 3;
+      if (type && typeScoresRaw[type] !== undefined) {
+        typeScoresRaw[type] += 3;
+      }
     });
 
+    /*******************************************
+     4) total 구하기 & dominant
+    ********************************************/
     let total = 0;
     Object.values(typeScoresRaw).forEach(score => total += score);
 
+    dominant = Object.entries(typeScoresRaw)
+                    .reduce((a,b) => b[1] > a[1] ? b : a)[0];
+
+    /*******************************************
+     5) 백분위 계산 함수 + Supabase 저장
+    ********************************************/
     async function calculatePercentiles() {
-      const { data: allData, error } = await supabaseClient.from('responses').select(`
-        total_score,
-        type_entitlement,
-        type_overreactive,
-        type_overinvolvement,
-        type_centered,
-        type_paranoia
-      `);
+      // 5-1) 전체 데이터 불러오기
+      const { data: allData, error } = await supabaseClient
+        .from('responses')
+        .select(`
+          total_score,
+          type_entitlement,
+          type_overreactive,
+          type_overinvolvement,
+          type_centered,
+          type_paranoia
+        `);
 
       if (error || !allData) {
         console.error("📉 백분위 계산 실패:", error);
@@ -184,29 +211,36 @@
         return;
       }
 
+      // 5-2) 백분위 계산 함수
       const getPercentile = (myScore, allScores) => {
         const lessThan = allScores.filter(s => s < myScore).length;
         const equalTo = allScores.filter(s => s === myScore).length;
         return Math.round(((lessThan + 0.5 * equalTo) / allScores.length) * 100);
       };
 
+      // 5-3) 전체 응답에서 score 리스트 추출
       const totalList = allData.map(d => d.total_score);
       const typeList = {
         "권리과잉형": allData.map(d => d.type_entitlement),
         "과민반응형": allData.map(d => d.type_overreactive),
         "오지랖형": allData.map(d => d.type_overinvolvement),
         "자기중심형": allData.map(d => d.type_centered),
-        "피해망상형": allData.map(d => d.type_paranoia)
+        "피해망상형": allData.map(d => d.type_paranoia),
       };
 
-      percentiles = { total: getPercentile(total, totalList) };
-      for (const [type, list] of Object.entries(typeList)) {
-        percentiles[type] = getPercentile(typeScoresRaw[type], list);
+      // 5-4) 전역 변수 percentiles에 백분위 결과 저장
+      percentiles = {
+        total: getPercentile(total, totalList)
+      };
+      for (const [type, arr] of Object.entries(typeList)) {
+        percentiles[type] = getPercentile(typeScoresRaw[type], arr);
       }
 
+      // 5-5) 총점 백분위 화면 표시
       document.getElementById("totalScore").innerHTML =
         `진상력 점수 (백분위): <strong>${percentiles.total}</strong> <span style="color:#333; font-size: 20px">%</span>`;
 
+      // 5-6) 레이더 차트도 백분위로 그림
       drawRadarChart({
         "권리과잉형": percentiles["권리과잉형"],
         "과민반응형": percentiles["과민반응형"],
@@ -214,12 +248,79 @@
         "자기중심형": percentiles["자기중심형"],
         "피해망상형": percentiles["피해망상형"]
       });
+
+      // 5-7) 결과 DB에 저장
       await saveToSupabase();
     }
 
-    calculatePercentiles();
+     /*******************************************
+     6) 실제 DB 저장 함수
+    ********************************************/
+    async function saveToSupabase() {
+      const { data, error } = await supabaseClient.from('responses').insert([{
+        total_score: total,
+        type_entitlement: typeScoresRaw["권리과잉형"],
+        type_overreactive: typeScoresRaw["과민반응형"],
+        type_overinvolvement: typeScoresRaw["오지랖형"],
+        type_centered: typeScoresRaw["자기중심형"],
+        type_paranoia: typeScoresRaw["피해망상형"],
+        dominant_type: dominant,
+        raw_answers: JSON.stringify(answers)
+      }]);
 
-    const dominant = Object.entries(typeScoresRaw).reduce((a, b) => b[1] > a[1] ? b : a)[0];
+      if (error) {
+        console.error("❌ Supabase 저장 오류:", error);
+      } else {
+        console.log("✅ Supabase에 저장 완료!", data);
+      }
+    }
+
+    /*******************************************
+     7) 차트 토글 / 레이더 차트
+    ********************************************/
+    document.getElementById("toggleChart").addEventListener("click", () => {
+      const section = document.getElementById("chartSection");
+      const isHidden = section.style.display === "none";
+      section.style.display = isHidden ? "block" : "none";
+
+      if (isHidden && percentiles) {
+        setTimeout(() => {
+          drawRadarChart({
+            "권리과잉형": percentiles["권리과잉형"],
+            "과민반응형": percentiles["과민반응형"],
+            "오지랖형": percentiles["오지랖형"],
+            "자기중심형": percentiles["자기중심형"],
+            "피해망상형": percentiles["피해망상형"]
+          });
+        }, 50);
+      }
+    });
+
+    function drawRadarChart(scores) {
+      const ctx = document.getElementById("radarChart").getContext("2d");
+      new Chart(ctx, {
+        type: "radar",
+        data: {
+          labels: Object.keys(scores),
+          datasets: [{
+            label: "유형별 점수 (백분위)",
+            data: Object.values(scores),
+            backgroundColor: "rgba(91, 128, 255, 0.2)",
+            borderColor: "rgba(91, 128, 255, 1)",
+            pointBackgroundColor: "rgba(91, 128, 255, 1)",
+            borderWidth: 2
+          }]
+        },
+        options: {
+          scales: {
+            r: {
+              suggestedMin: 0,
+              suggestedMax: 100
+            }
+          }
+        }
+      });
+    }
 
 const typeDescriptions = {
   "권리과잉형": {
@@ -295,26 +396,8 @@ const typeDescriptions = {
       document.getElementById("typeSummary").innerHTML = html;
     }
 
-document.getElementById("toggleChart").addEventListener("click", () => {
-  const section = document.getElementById("chartSection");
-  const isHidden = section.style.display === "none";
-
-  section.style.display = isHidden ? "block" : "none";
-
-  if (isHidden) {
-    setTimeout(() => {
-    drawRadarChart({
-    "권리과잉형": percentiles["권리과잉형"],
-    "과민반응형": percentiles["과민반응형"],
-    "오지랖형": percentiles["오지랖형"],
-    "자기중심형": percentiles["자기중심형"],
-    "피해망상형": percentiles["피해망상형"]
-  });
-}, 50);
-
-  }
-});
-
+        calculatePercentiles();
+    
     function goToStart() {
   if (confirm("테스트를 처음부터 다시 진행하시겠어요?")) {
     localStorage.clear();
@@ -329,57 +412,10 @@ function shareTest() {
   });
 }
 
-
 function goToAbout() {
   window.location.href = "about.html";  // 만든 사람 소개 페이지 경로
 }
 
-    function drawRadarChart(scores) {
-      const ctx = document.getElementById("radarChart").getContext("2d");
-      new Chart(ctx, {
-        type: "radar",
-        data: {
-          labels: Object.keys(scores),
-          datasets: [{
-            label: "유형별 점수 (100점 환산)",
-            data: Object.values(scores),
-            backgroundColor: "rgba(91, 128, 255, 0.2)",
-            borderColor: "rgba(91, 128, 255, 1)",
-            pointBackgroundColor: "rgba(91, 128, 255, 1)",
-            borderWidth: 2
-          }]
-        },
-        options: {
-          scales: {
-            r: {
-              suggestedMin: 0,
-              suggestedMax: 100
-            }
-          }
-        }
-      });
-    }
-
-  // Supabase에 저장할 함수
-async function saveToSupabase() {
-  const { data, error } = await supabaseClient.from('responses').insert([{
-    total_score: total,
-    type_entitlement: typeScoresRaw["권리과잉형"],
-    type_overreactive: typeScoresRaw["과민반응형"],
-    type_overinvolvement: typeScoresRaw["오지랖형"],
-    type_centered: typeScoresRaw["자기중심형"],
-    type_paranoia: typeScoresRaw["피해망상형"],
-    dominant_type: dominant,
-    raw_answers: JSON.stringify(answers)
-  }]);
-
-  if (error) {
-    console.error("❌ Supabase 저장 오류:", error);
-  } else {
-    console.log("✅ Supabase에 저장 완료!", data);
-  }
-}
-    
   </script>
 </body>
 </html>
